@@ -32,4 +32,4 @@ async def call_tool_http(name: str, args_dict: dict) -> list[mcp_sdk_types.TextC
 ```
 The `execute_readability_tool` function, which is called internally by these handlers, continues to receive `ctx` as an argument as it's passed explicitly by the modified handlers.
 
-**Reference:** This solution aligns with the pattern observed in example MCP server implementations (e.g., `others/streamable_http/server.py`) where context is accessed via `app.request_context` within the tool call handler.
+**Reference:** This solution aligns with the pattern observed in example MCP server implementations (e.g., `streamable_http/server.py`) where context is accessed via `app.request_context` within the tool call handler.

@@ -13,7 +13,7 @@ The application can process text from three types of sources:
 - Provides basic text statistics: syllable count, word count, sentence count.
 - Accepts input as direct text, web URL, or GCS PDF URI.
 - HTML parsing for web URLs to extract relevant content using BeautifulSoup.
-- PDF text extraction from GCS using PyPDF2 (Note: PyPDF2 is deprecated, consider migrating to `pypdf`).
+- PDF text extraction from GCS using PyPDF2 
 - Multi-mode operation: FastAPI HTTP server, MCP STDIO server, or MCP Streamable HTTP server.
 
 ## Setup
@@ -84,20 +84,20 @@ uv run python main.py --server-type mcp
 ```
 - This will start the `mcp_generic_app` instance defined in `main.py` using the STDIO transport.
 
-**Using with an MCP Client (e.g., Gemini CLI / AI Agent):**
-If you have an MCP client configured (like the Gemini CLI), you can define this server in its settings. For example, in a `.gemini/settings.json` (or similar client configuration file for your agent):
+**Using with an MCP Client (e.g., AI Application / Claude):**
+If you have an MCP client configured (like Claude Code), you can define this server in its settings. For example, in a `~/.claude/settings.json` (or similar client configuration file for your agent):
 ```json
 {
     "mcpServers": {
         "readability_docstats": {
             "command": "uv",
             "args": ["run", "python", "main.py", "--server-type", "mcp"],
-            "workingDirectory": "/Users/ghchinoy/dev/docstats"
+            "workingDirectory": "~/dev/docstats"
         }
     }
 }
 ```
-Replace `/Users/ghchinoy/dev/docstats` with the correct absolute path to this project directory if your MCP client runs from a different context.
+Replace `~/dev/docstats` with the correct absolute path to this project directory if your MCP client runs from a different context.
 Once configured, you could invoke the tool via the client, e.g.:
 `@readability_docstats get_readability_scores text="Some sample text."`
 
@@ -150,3 +150,10 @@ The API returns the following scores (where applicable):
 - Syllable Count
 - Word Count
 - Sentence Count
+
+
+# License
+Apache 2.0
+
+# Disclaimer
+This is not an officially supported Google product.
