@@ -254,7 +254,7 @@ if __name__ == "__main__":
 
     if cli_args.server_type == "fastapi":
         logger.info(f"Starting FastAPI server on {cli_args.host}:{cli_args.port}...")
-        uvicorn.run(fastapi_app, host=cli_args.host, port=cli_args.port, reload=True, timeout_graceful_shutdown=2)
+        uvicorn.run("main:fastapi_app", host=cli_args.host, port=cli_args.port, reload=True, timeout_graceful_shutdown=2)
     
     elif cli_args.server_type == "mcp":
         logger.info("Starting MCP STDIO server...")
