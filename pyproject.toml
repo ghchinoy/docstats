@@ -1,0 +1,25 @@
+[project]
+name = "docstats"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "anyio>=4.9.0",
+    "beautifulsoup4>=4.13.4",
+    "fastapi>=0.115.12",
+    "google-cloud-storage>=3.1.0",
+    "mcp>=1.9.3",
+    "nltk>=3.9.1",
+    "py-readability-metrics>=1.4.5",
+    "pypdf2>=3.0.1",
+    "pytest>=8.4.0",
+    "starlette>=0.46.2",
+    "textstat>=0.7.7",
+    "uvicorn[standard]>=0.34.3",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow to run (deselect with '-m \"not slow\"')"
+]
