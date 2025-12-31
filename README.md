@@ -4,16 +4,16 @@ Docstats is a versatile Python application that calculates a comprehensive set o
 
 The application can process text from three types of sources:
 1.  Direct text input.
-2.  A publicly accessible web URL (HTML content will be parsed to extract main text).
+2.  A publicly accessible web URL (supports both HTML content and PDF files).
 3.  A Google Cloud Storage (GCS) URI pointing to a PDF file.
 
 ## Features
 
 - Calculates numerous readability scores (Flesch Reading Ease, Flesch-Kincaid Grade, Gunning Fog, etc.).
 - Provides basic text statistics: syllable count, word count, sentence count.
-- Accepts input as direct text, web URL, or GCS PDF URI.
+- Accepts input as direct text, web URL (HTML/PDF), or GCS PDF URI.
 - HTML parsing for web URLs to extract relevant content using BeautifulSoup.
-- PDF text extraction from GCS using PyPDF2 
+- PDF text extraction from web URLs and GCS using `pypdf`.
 - Multi-mode operation: FastAPI HTTP server, MCP STDIO server, or MCP Streamable HTTP server.
 
 ## Setup
@@ -121,21 +121,55 @@ uv run python main.py --server-type mcp-http --host 127.0.0.1 --port 8001
 
 ## Development and Testing
 
-- **Dependencies:** Manage Python dependencies using `uv` and `pyproject.toml`.
-  To add a new dependency: `uv pip install <new_package>` (this should update `uv.lock`; you may need to manually add it to `pyproject.toml`'s dependencies section).
-  To generate `requirements.txt` from `pyproject.toml` (if needed for other purposes):
-  ```bash
-  uv pip compile pyproject.toml -o requirements.txt
-  ```
-- **Testing:** The project includes a test suite using `pytest`.
-  Run tests with:
-  ```bash
-  uv run pytest
-  ```
-  To run tests without those marked as `slow` (network-dependent):
-  ```bash
-  uv run pytest -m "not slow"
-  ```
+### Testing
+The project includes a comprehensive test suite using `pytest`. 
+
+#### Test Types
+1. **Unit Tests (`test_unit.py`):** Uses mocks for `httpx`, `google-cloud-storage`, and `pypdf`. These are fast and do not require internet or cloud credentials. They cover core extraction logic and MCP tool execution.
+2. **Integration Tests (`test_main.py`):** Uses FastAPI's `TestClient` to verify end-to-end flow. Some tests are marked as `slow` because they require network access to fetch live web pages and GCS PDFs.
+
+#### Test Coverage
+- **Direct Text Input:** Verifies score calculation for both short and medium texts.
+- **Web & PDF Extraction:** Tests HTML and PDF extraction from both live URLs and mocked responses.
+- **GCS PDF Extraction:** Verifies GCS integration (mocked and live).
+- **MCP Tools:** Verifies that the Model Context Protocol tools return correctly formatted JSON-RPC responses.
+- **Validation & Errors:** Ensures 422 errors are returned for invalid inputs or source conflicts.
+
+#### Running Tests
+Run **all** tests:
+```bash
+uv run pytest
+```
+
+Run only **unit tests** (fast, no network):
+```bash
+uv run pytest test_unit.py
+```
+
+Run tests **excluding slow integration tests**:
+```bash
+uv run pytest -m "not slow"
+```
+
+### Benchmarking & Samples
+The project includes a **Readability Golden Set** in the `samples/` directory, containing texts of varying complexity (Primary, Middle, Academic, Legal).
+
+#### Baseline Analysis
+You can run a baseline analysis to see how the engine scores these different levels:
+```bash
+uv run python baseline_analysis.py
+```
+This script:
+1. Processes all files in `samples/`.
+2. Prints a summary table of grade standards and word counts.
+3. Saves the full metric breakdown to `samples/baseline_results.json`.
+
+**Note:** The samples are used to verify that code or logic changes (e.g., extraction or normalization) don't unintentionally shift the readability scores of known content.
+
+### Dependencies
+Manage Python dependencies using `uv` and `pyproject.toml`.
+- To add a new dependency: `uv add <package>`
+- To sync environment: `uv sync`
 
 ## Available Readability Scores
 

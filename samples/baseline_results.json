@@ -1,0 +1,62 @@
+{
+  "level_primary.txt": {
+    "flesch_reading_ease": 106.90140350877192,
+    "flesch_kincaid_grade": -0.07789473684210435,
+    "gunning_fog": 2.533333333333333,
+    "smog_index": 4.375723439535773,
+    "automated_readability_index": -1.229423558897242,
+    "coleman_liau_index": -0.41353383458646675,
+    "linsear_write_formula": 2.125,
+    "dale_chall_readability_score": 1.0264641604010025,
+    "text_standard": "-1.0",
+    "spache": 1.7966616541353382,
+    "syllable_count": 147,
+    "word_count": 133,
+    "sentence_count": 21
+  },
+  "level_middle.txt": {
+    "flesch_reading_ease": 35.309411764705914,
+    "flesch_kincaid_grade": 12.55764705882353,
+    "gunning_fog": 15.950326797385623,
+    "smog_index": 14.712192995108573,
+    "automated_readability_index": 14.190980392156867,
+    "coleman_liau_index": 15.287581699346408,
+    "linsear_write_formula": 11.166666666666666,
+    "dale_chall_readability_score": 11.497477777777778,
+    "text_standard": "15.0",
+    "spache": 7.058222222222222,
+    "syllable_count": 279,
+    "word_count": 153,
+    "sentence_count": 9
+  },
+  "level_academic.txt": {
+    "flesch_reading_ease": -29.799285714285645,
+    "flesch_kincaid_grade": 22.384285714285713,
+    "gunning_fog": 26.285714285714292,
+    "smog_index": 20.537248953866406,
+    "automated_readability_index": 23.457642857142858,
+    "coleman_liau_index": 24.85285714285715,
+    "linsear_write_formula": 19.6,
+    "dale_chall_readability_score": 14.892000000000001,
+    "text_standard": "23.0",
+    "spache": 9.31042857142857,
+    "syllable_count": 358,
+    "word_count": 140,
+    "sentence_count": 7
+  },
+  "level_legal.txt": {
+    "flesch_reading_ease": 13.95116207951071,
+    "flesch_kincaid_grade": 20.33963302752294,
+    "gunning_fog": 25.175535168195722,
+    "smog_index": 20.890749979661237,
+    "automated_readability_index": 22.490428134556574,
+    "coleman_liau_index": 14.67339449541284,
+    "linsear_write_formula": 25.0,
+    "dale_chall_readability_score": 12.102303058103976,
+    "text_standard": "25.0",
+    "spache": 9.512458715596331,
+    "syllable_count": 201,
+    "word_count": 109,
+    "sentence_count": 3
+  }
+}

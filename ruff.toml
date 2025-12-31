@@ -1,0 +1,23 @@
+# Ruff configuration for docstats
+
+# Assume Python 3.13
+target-version = "py313"
+
+line-length = 88
+
+[lint]
+# Enable Pyflakes (F), Pycodestyle (E, W), and Docstrings (D)
+select = ["F", "E", "W", "D", "I"]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+]
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
