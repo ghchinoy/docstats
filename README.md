@@ -179,15 +179,15 @@ Manage Python dependencies using `uv` and `pyproject.toml`.
 ## Available Readability Scores
 
 The API returns the following scores (where applicable):
-- Flesch Reading Ease
-- Flesch-Kincaid Grade Level
-- Gunning Fog Index
-- SMOG Index
-- Automated Readability Index (ARI)
-- Coleman-Liau Index
-- Linsear Write Formula
-- Dale-Chall Readability Score
-- Spache Readability Score (Note: May return `null` if text doesn't meet specific criteria, e.g., word count)
+- [Flesch Reading Ease](https://en.wikipedia.org/wiki/Flesch_Reading_Ease)
+- [Flesch-Kincaid Grade Level](https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests)
+- [Gunning Fog Index](https://en.wikipedia.org/wiki/Gunning_fog_index)
+- [SMOG Index](https://en.wikipedia.org/wiki/SMOG)
+- [Automated Readability Index (ARI)](https://en.wikipedia.org/wiki/Automated_readability_index)
+- [Coleman-Liau Index](https://en.wikipedia.org/wiki/Coleman%E2%80%93Liau_index)
+- [Linsear Write Formula](https://en.wikipedia.org/wiki/Linsear_Write)
+- [Dale-Chall Readability Score](https://en.wikipedia.org/wiki/Dale%E2%80%93Chall_readability_formula)
+- [Spache Readability Score](https://en.wikipedia.org/wiki/Spache_readability_formula) (Note: May return `null` if text doesn't meet specific criteria, e.g., word count)
 - Text Standard (Consensus grade level)
 - Syllable Count
 - Word Count
