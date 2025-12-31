@@ -1,7 +1,7 @@
 [project]
 name = "docstats"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "A multi-protocol readability metrics server supporting FastAPI and MCP (Model Context Protocol) for web, PDF, and cloud sources."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
