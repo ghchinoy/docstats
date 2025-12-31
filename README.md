@@ -84,25 +84,30 @@ uv run python main.py --server-type mcp
 ```
 - This will start the `mcp_generic_app` instance defined in `main.py` using the STDIO transport.
 
-**Using with an MCP Client (e.g., AI Application / Claude):**
-If you have an MCP client configured (like Claude Code), you can define this server in its settings. For example, in a `~/.claude/settings.json` (or similar client configuration file for your agent):
+**Using with an MCP Client (e.g., AI Application / Gemini CLI / Claude):**
+If you have an MCP client configured (like Gemini CLI or Claude Code), you can define this server in its settings. 
+
+For example, in a `~/.claude/settings.json` or `~/.gemini/settings.json` (or similar client configuration file for your agent):
 ```json
 {
-    "mcpServers": {
-        "readability_docstats": {
-            "command": "uv",
-            "args": ["run", "python", "~/dev/docstats/main.py", "--server-type", "mcp"],
-            "workingDirectory": "~/dev/docstats"
-        }
+  "mcpServers": {
+    "readability_docstats": {
+      "command": "uv",
+      "args": ["run", "python", "/PATH/TO/DOCSTATS/main.py", "--server-type", "mcp"],
+      "cwd": "/PATH/TO/DOCSTATS"
     }
+  }
 }
 ```
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=readability_docstats&config=eyJjb21tYW5kIjoidXYgcnVuIC9QQVRIL1RPL1JFUE8vZG9jc3RhdHMvLnZlbnYvYmluL3B5dGhvbiAvUEFUSC9UTy9SRVBPL2RvY3N0YXRzL21haW4ucHkgLS1zZXJ2ZXItdHlwZSBtY3AiLCJ3b3JraW5nRGlyZWN0b3J5IjoiL1BBVEgvVE8vUkVQTy9kZXYvZG9jc3RhdHMifQ%3D%3D)
-
-Replace `~/dev/docstats` with the correct absolute path to this project directory if your MCP client runs from a different context.
+Replace `/PATH/TO/docstats` with the correct absolute path to this project directory if your MCP client runs from a different context.
 Once configured, you could invoke the tool via the client, e.g.:
 `@readability_docstats get_readability_scores text="Some sample text."`
+
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=readability_docstats&config=eyJjb21tYW5kIjoidXYgcnVuIC9QQVRIL1RPL1JFUE8vZG9jc3RhdHMvLnZlbnYvYmluL3B5dGhvbiAvUEFUSC9UTy9SRVBPL2RvY3N0YXRzL21haW4ucHkgLS1zZXJ2ZXItdHlwZSBtY3AiLCJ3b3JraW5nRGlyZWN0b3J5IjoiL1BBVEgvVE8vUkVQTy9kZXYvZG9jc3RhdHMifQ%3D%3D)
+
+
 
 ### 3. As an MCP Streamable HTTP Server
 
