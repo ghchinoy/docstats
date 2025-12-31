@@ -12,6 +12,14 @@ bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
 
+## Maintenance & Quality
+
+### Benchmarking with the Golden Set
+When modifying extraction logic (`extraction.py`) or metric calculations (`metrics.py`), you must verify that you haven't introduced unintended "drift" in the scores:
+- **Run Baseline:** `uv run python baseline_analysis.py`
+- **Verify:** Compare the output against `samples/baseline_results.json`.
+- **Quality Goal:** Use these samples to perform "Hill Climbing"—iteratively adjusting code or content to meet specific readability targets.
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
