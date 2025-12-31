@@ -50,16 +50,16 @@ The `main.py` script uses command-line flags to determine how it starts.
 
 ### 1. As a FastAPI HTTP Server
 
-This mode provides a traditional RESTful API. For development with auto-reload, it's best to run Uvicorn directly.
+This mode provides a traditional RESTful API. For development with auto-reload, it's best to run Uvicorn directly pointing to the `fastapi_app` module.
 
 **Recommended Development Startup (with auto-reload):**
 ```bash
-uv run uvicorn main:fastapi_app --host 127.0.0.1 --port 8000 --reload
+uv run uvicorn fastapi_app:fastapi_app --host 127.0.0.1 --port 8000 --reload
 ```
 - Adjust `--host` and `--port` as needed.
 - API documentation (Swagger UI) will be available at `http://127.0.0.1:8000/docs`.
 
-**Alternative Startup (using `python main.py`):**
+**Alternative Startup (using the `main.py` entry point):**
 ```bash
 uv run python main.py --server-type fastapi --host 127.0.0.1 --port 8000
 ```
