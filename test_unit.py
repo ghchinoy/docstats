@@ -29,17 +29,15 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from fastapi.testclient import TestClient
 
 from ai_patterns import (
-    TECHNICAL_ADVERBS,
     analyze_adverbs,
-    count_em_dashes_in_prose,
     detect_ai_patterns,
     strip_code_and_tables,
 )
 from extraction import get_processed_text
 from fastapi_app import fastapi_app
-from fastapi.testclient import TestClient
 from mcp_server import (
     InMemoryEventStore,
     call_tool_generic,
@@ -259,23 +257,26 @@ def test_strip_code_and_tables():
 
 def test_em_dash_softening_and_detection():
     """Verifies em dash detection and softening for reasonable usage."""
-    # 1. Clean text with 1 reasonable em dash in a ~100 word paragraph (should have 0 or minor penalty)
+    # 1. Clean text with 1 reasonable em dash in ~65 words
     reasonable_text = (
-        "We configured the database engine to run in server mode — a necessary step "
-        "for multi-agent concurrent operations. Each worker connects directly to the port "
-        "and coordinates state through Dolt transactions. This architecture isolates the locks "
-        "and guarantees data persistence across sessions without rollbacks or corruption. "
-        "The team verified this in automated integration tests over the past three releases."
+        "We configured the database engine to run in server mode — "
+        "a necessary step for multi-agent concurrent operations. "
+        "Each worker connects directly to the port and coordinates "
+        "state through Dolt transactions. This architecture isolates "
+        "locks and guarantees data persistence across sessions without "
+        "rollbacks or corruption. The team verified this in automated "
+        "integration tests over the past three releases."
     )
     patterns = detect_ai_patterns(reasonable_text, 65)
     assert patterns.em_dash_count == 1
     # 1 em dash in 65 words is rate ~1.54, but ai_tell_score should remain high (> 7.0)
     assert patterns.ai_tell_score >= 7.0
 
-    # 2. Heavy AI tell: 4 em dashes in 40 words
+    # 2. Heavy AI tell: 4 em dashes in 25 words
     slop_text = (
-        "The migration is loud — it tells us what broke — because the system isn't just software — "
-        "it's behavior — and that changes everything."
+        "The migration is loud — it tells us what broke — because "
+        "the system isn't just software — it's behavior — and "
+        "that changes everything."
     )
     slop_patterns = detect_ai_patterns(slop_text, 25)
     assert slop_patterns.em_dash_count == 4
@@ -285,8 +286,9 @@ def test_em_dash_softening_and_detection():
 def test_technical_adverb_allowlist():
     """Verifies that technical adverbs (atomically, recursively) are not penalized."""
     tech_text = (
-        "The system commits transactions atomically and traverses the tree recursively "
-        "while polling asynchronously and updating nodes programmatically."
+        "The system commits transactions atomically and traverses the tree "
+        "recursively while polling asynchronously and updating nodes "
+        "programmatically."
     )
     count, found, offenders = analyze_adverbs(tech_text)
     assert count == 0
@@ -304,8 +306,10 @@ def test_technical_adverb_allowlist():
 def test_throat_clearing_and_binary_contrasts():
     """Verifies throat-clearing openers and binary contrast framing detection."""
     text = (
-        "Here's the thing: we noticed an issue. It's worth noting that the cache was cold. "
-        "Not `click_at`, just `click`. Environment isn't documentation, it's behavior. "
+        "Here's the thing: we noticed an issue. "
+        "It's worth noting that the cache was cold. "
+        "Not `click_at`, just `click`. "
+        "Environment isn't documentation, it's behavior. "
         "The implications are significant. That's it."
     )
     patterns = detect_ai_patterns(text, 35)

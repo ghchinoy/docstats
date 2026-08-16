@@ -157,23 +157,27 @@ THROAT_CLEARING_PATTERNS = [
 # Binary contrast framing patterns (SKILL.md:65-70)
 BINARY_CONTRAST_PATTERNS = [
     re.compile(
-        r"\bnot\s+([a-zA-Z0-9_`]+)[,;]?\s+(?:it['’]?s|just)\s+([a-zA-Z0-9_`]+)\b",
+        r"\bnot\s+([a-zA-Z0-9_`]+)\s*[,;]?\s*(?:it['’]?s|just)\s+([a-zA-Z0-9_`]+)\b",
         re.IGNORECASE,
     ),
     re.compile(
-        r"\b([a-zA-Z0-9_`]+)\s+isn['’]?t\s+(?:the\s+problem|documentation|just\s+about\s+[^,;]+)[,;]?\s+(?:it['’]?s|[a-zA-Z0-9_`]+\s+is)\b",
+        r"\b([a-zA-Z0-9_`]+)\s+isn['’]?t\s+([a-zA-Z0-9_`\s]+?)\s*[,;]\s*(?:it['’]?s|([a-zA-Z0-9_`]+)\s+is)\b",
         re.IGNORECASE,
     ),
     re.compile(
-        r"\bit['’]?s\s+not\s+about\s+[^,;]+[,;]\s+it['’]?s\s+about\b",
+        r"\b([a-zA-Z0-9_`]+)\s+is\s+not\s+([a-zA-Z0-9_`\s]+?)\s*[,;]\s*(?:it\s+is|([a-zA-Z0-9_`]+)\s+is)\b",
         re.IGNORECASE,
     ),
     re.compile(
-        r"\bit\s+is\s+not\s+about\s+[^,;]+[,;]\s+it\s+is\s+about\b",
+        r"\bit['’]?s\s+not\s+about\s+[^,;]+[,;]\s*it['’]?s\s+about\b",
         re.IGNORECASE,
     ),
     re.compile(
-        r"\bnot\s+only\s+(?:is|does|are|about)\s+[^,;]+[,;]?\s+but\s+(?:also\s+)?[^.]+\b",
+        r"\bit\s+is\s+not\s+about\s+[^,;]+[,;]\s*it\s+is\s+about\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\bnot\s+only\s+(?:is|does|are|about)\s+[^,;]+[,;]?\s*but\s+(?:also\s+)?[^.]+\b",
         re.IGNORECASE,
     ),
 ]
@@ -221,7 +225,7 @@ def strip_code_and_tables(text: str) -> str:
     # Remove fenced code blocks (``` ... ```)
     clean = re.sub(r"```[\s\S]*?```", " ", text)
     # Remove inline code (` ... `)
-    clean = re.sub(r"`[^`\n]+`", " code_token ", clean)
+    clean = re.sub(r"`[^`\n]+`", "code_token", clean)
     # Remove markdown table rows (lines starting with | or having multiple |)
     lines = clean.split("\n")
     prose_lines = []
@@ -458,10 +462,14 @@ def detect_ai_patterns(raw_text: str, total_word_count: int) -> AIPatternScoresM
     # Em dash penalty:
     # 1 em dash per 200 words (~0.5 per 100 words) is standard/reasonable human prose.
     if em_dash_rate > 0.5:
-        # Excess beyond reasonable threshold
-        excess_rate = em_dash_rate - 0.5
-        deductions += min(2.0, excess_rate * 1.5)
-        if em_dash_rate > 1.2:
+        if em_dash_rate <= 1.0:
+            deductions += 0.3 + (em_dash_rate - 0.5) * 0.8
+        else:
+            deductions += min(
+                4.0,
+                0.7 + (em_dash_rate - 1.0) * 1.5 + max(0, em_dash_count - 2) * 0.5,
+            )
+        if em_dash_rate > 1.2 or em_dash_count >= 3:
             flags.append(
                 f"Excessive em dash density in prose: {em_dash_count} "
                 f"({em_dash_rate}/100w)."
