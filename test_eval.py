@@ -17,8 +17,11 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+import yaml
 
 from eval.analyze_results import analyze_run_results
+from eval.corpus.capture_baselines import capture_corpus_baselines
+from eval.corpus.generate_drafts import generate_tier_1_documents
 from eval.judge import compute_held_out_metrics, evaluate_document_blind
 from eval.llm_client import GeminiLLMClient, LLMResponse, UsageStats
 from eval.mcp_client import DocstatsMCPClient
@@ -190,3 +193,69 @@ def test_evaluate_and_writeup_pipeline(tmp_path):
     assert "Empirical Evaluation Report" in report_text
     assert "Executive Summary & Verdict" in report_text
     assert "Replication Guide" in report_text
+
+
+def test_corpus_extended_schema_and_integrity():
+    """Verifies that all corpus documents meet extended schema requirements."""
+    corpus_dir = Path(__file__).parent / "eval" / "corpus"
+    docs = load_corpus_documents(corpus_dir)
+    assert len(docs) == 10
+
+    valid_tiers = {"generated_ai", "synthetic_curated", "public_licensed"}
+
+    for doc in docs:
+        meta = doc["meta"]
+        assert "id" in meta
+        assert "title" in meta
+        assert "doc_type" in meta
+        assert meta.get("source_tier") in valid_tiers
+        assert "license" in meta
+        assert "target" in meta
+        assert "band" in meta["target"]
+        assert "known_tells" in meta
+
+        # Verify source text content
+        assert len(doc["source_text"].strip()) > 100
+
+        # Verify baseline.json exists and is valid
+        baseline_file = doc["dir_path"] / "baseline.json"
+        assert baseline_file.exists()
+        baseline_data = json.loads(baseline_file.read_text(encoding="utf-8"))
+        assert "readability" in baseline_data
+        assert "ai_patterns" in baseline_data
+
+
+def test_generate_drafts_offline_fallback(tmp_path):
+    """Verifies offline generation of Tier 1 corpus documents."""
+    out_dir = tmp_path / "corpus_gen"
+    paths = generate_tier_1_documents(out_dir, use_live_api=False)
+    assert len(paths) == 4
+    for p in paths:
+        assert (p / "source.md").exists()
+        assert (p / "meta.yaml").exists()
+        with open(p / "meta.yaml", "r", encoding="utf-8") as f:
+            meta = yaml.safe_load(f)
+        assert meta["source_tier"] == "generated_ai"
+
+
+@pytest.mark.asyncio
+async def test_capture_corpus_baselines_runner(tmp_path):
+    """Verifies baseline capture across a corpus directory."""
+    doc_dir = tmp_path / "sample-test-doc"
+    doc_dir.mkdir()
+    (doc_dir / "source.md").write_text(
+        "Here's the thing: this is a test paragraph designed to verify that "
+        "baseline capture correctly analyzes text and saves the result to "
+        "baseline.json without errors. We ensure that calculations proceed "
+        "smoothly across all documents in the corpus.",
+        encoding="utf-8",
+    )
+    (doc_dir / "meta.yaml").write_text(
+        "id: sample-test-doc\ntitle: Test\nsource_tier: synthetic_curated\n",
+        encoding="utf-8",
+    )
+
+    results = await capture_corpus_baselines(tmp_path)
+    assert len(results) == 1
+    assert (doc_dir / "baseline.json").exists()
+    assert results[0]["id"] == "sample-test-doc"

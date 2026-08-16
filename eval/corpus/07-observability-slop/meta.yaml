@@ -1,0 +1,22 @@
+id: "07-observability-slop"
+title: "RFC: Enterprise Distributed Tracing Standards"
+doc_type: "architecture_rfc"
+source_tier: "synthetic_curated"
+license: "Apache-2.0"
+source_url: null
+generation_prompt: null
+provenance: "Hand-curated synthetic draft with vague declaratives, Wh- assertions, fragments, and metronomic rhythm"
+target:
+  audience: "Site Reliability Engineers & Platform Architects"
+  band: "Very Dense"
+  expected_fk_grade_min: 12.0
+  expected_fk_grade_max: 16.0
+known_tells:
+  em_dashes: false
+  throat_clearing: true
+  binary_contrasts: false
+  high_adverb_density: false
+  wh_starters: true
+  fragments: true
+  vague_declaratives: true
+  metronomic_rhythm: true

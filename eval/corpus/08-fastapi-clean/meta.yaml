@@ -1,0 +1,22 @@
+id: "08-fastapi-clean"
+title: "FastAPI Dependency Injection Tutorial"
+doc_type: "tutorial"
+source_tier: "public_licensed"
+license: "MIT"
+source_url: "https://fastapi.tiangolo.com/tutorial/dependencies/"
+generation_prompt: null
+provenance: "Excerpt from official FastAPI documentation (MIT License, Sebastian Ramirez)"
+target:
+  audience: "Python Backend Developers"
+  band: "Accessible"
+  expected_fk_grade_min: 7.0
+  expected_fk_grade_max: 11.0
+known_tells:
+  em_dashes: false
+  throat_clearing: false
+  binary_contrasts: false
+  high_adverb_density: false
+  wh_starters: false
+  fragments: false
+  vague_declaratives: false
+  metronomic_rhythm: false

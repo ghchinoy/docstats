@@ -1,0 +1,23 @@
+id: 04-index-tuning
+title: 'PostgreSQL Index Tuning: When B-Trees Aren''t Enough'
+doc_type: tutorial
+source_tier: generated_ai
+license: Apache-2.0
+source_url: null
+generation_prompt: Write a 250-word technical tutorial on selecting appropriate PostgreSQL
+  index types (BRIN vs GIN vs B-Tree) for high-volume event logging tables.
+provenance: Generated via Gemini 3.7 Flash from realistic technical developer brief
+target:
+  audience: Full-Stack & Database Developers
+  band: Accessible
+  expected_fk_grade_min: 8.0
+  expected_fk_grade_max: 12.0
+known_tells:
+  em_dashes: true
+  throat_clearing: true
+  binary_contrasts: true
+  high_adverb_density: false
+  wh_starters: true
+  fragments: true
+  vague_declaratives: true
+  metronomic_rhythm: false

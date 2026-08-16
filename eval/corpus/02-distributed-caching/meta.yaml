@@ -1,0 +1,24 @@
+id: 02-distributed-caching
+title: Scaling Read Throughput with Redis Multi-Region Replication
+doc_type: developer_blog
+source_tier: generated_ai
+license: Apache-2.0
+source_url: null
+generation_prompt: Write a 250-word engineering blog post explaining how our team
+  implemented multi-region Redis caching with active-active replication to support
+  100k requests per second while avoiding split-brain scenarios.
+provenance: Generated via Gemini 3.7 Flash from realistic technical developer brief
+target:
+  audience: Platform & Site Reliability Engineers
+  band: Accessible
+  expected_fk_grade_min: 8.0
+  expected_fk_grade_max: 12.0
+known_tells:
+  em_dashes: true
+  throat_clearing: true
+  binary_contrasts: true
+  high_adverb_density: false
+  wh_starters: true
+  fragments: true
+  vague_declaratives: true
+  metronomic_rhythm: false

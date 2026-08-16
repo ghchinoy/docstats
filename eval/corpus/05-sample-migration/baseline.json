@@ -1,0 +1,43 @@
+{
+  "readability": {
+    "flesch_reading_ease": 36.863776223776256,
+    "flesch_kincaid_grade": 11.347132867132867,
+    "gunning_fog": 14.71048951048951,
+    "smog_index": 13.172668634160413,
+    "automated_readability_index": 12.684794520547946,
+    "coleman_liau_index": 15.222377622377625,
+    "linsear_write_formula": 12.166666666666666,
+    "dale_chall_readability_score": 11.568992307692309,
+    "text_standard": "12.0",
+    "spache": 7.287577586206897,
+    "syllable_count": 265,
+    "word_count": 143,
+    "sentence_count": 11
+  },
+  "ai_patterns": {
+    "em_dash_count": 2,
+    "em_dash_rate": 1.37,
+    "adverb_ly_count": 3,
+    "adverb_ly_rate": 2.05,
+    "throat_clearing_count": 5,
+    "binary_contrast_count": 2,
+    "wh_starter_count": 1,
+    "wh_starter_rate": 8.33,
+    "fragment_count": 1,
+    "list_of_three_count": 0,
+    "sentence_len_cv": 0.657,
+    "vague_declarative_count": 1,
+    "passive_hint_count": 0,
+    "total_tells": 12,
+    "ai_tell_score": 3.2,
+    "confidence": "high",
+    "flags": [
+      "Detected 1 high-offender adverb(s): simply",
+      "Found 5 throat-clearing opener(s) or announcement phrase(s).",
+      "Found 2 binary contrast frame(s) ('not X, it\\'s Y').",
+      "Found 1 staccato fragment(s) for manufactured emphasis.",
+      "Found 1 vague declarative or significance-announcing phrase(s).",
+      "Excessive em dash density in prose: 2 (1.37/100w)."
+    ]
+  }
+}

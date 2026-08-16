@@ -1,0 +1,22 @@
+id: "09-sqlite-wal-guide"
+title: "Write-Ahead Logging in SQLite"
+doc_type: "developer_blog"
+source_tier: "public_licensed"
+license: "Public Domain"
+source_url: "https://www.sqlite.org/wal.html"
+generation_prompt: null
+provenance: "Excerpt from official SQLite documentation on WAL mode (Public Domain)"
+target:
+  audience: "Database & Systems Engineers"
+  band: "Dense"
+  expected_fk_grade_min: 10.0
+  expected_fk_grade_max: 14.0
+known_tells:
+  em_dashes: false
+  throat_clearing: false
+  binary_contrasts: false
+  high_adverb_density: false
+  wh_starters: false
+  fragments: false
+  vague_declaratives: false
+  metronomic_rhythm: false
