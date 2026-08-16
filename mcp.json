@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "readability-docstats": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "${PLUGIN_ROOT}/main.py", "--server-type", "mcp"],
+      "cwd": "${PLUGIN_ROOT}"
+    }
+  }
+}

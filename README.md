@@ -104,6 +104,11 @@ Replace `/PATH/TO/docstats` with the correct absolute path to this project direc
 Once configured, you could invoke the tool via the client, e.g.:
 `@readability_docstats get_readability_scores text="Some sample text."`
 
+> **Tip:** The block above is client-native config. Docstats also ships a
+> portable [`mcp.json`](./mcp.json) manifest (Agent Plugins v1.0.0) that
+> declares the same STDIO server using `${PLUGIN_ROOT}` instead of hard-coded
+> paths — see [Agent Plugin](#agent-plugin) below.
+
 
 [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=readability_docstats&config=eyJjb21tYW5kIjoidXYgcnVuIC9QQVRIL1RPL1JFUE8vZG9jc3RhdHMvLnZlbnYvYmluL3B5dGhvbiAvUEFUSC9UTy9SRVBPL2RvY3N0YXRzL21haW4ucHkgLS1zZXJ2ZXItdHlwZSBtY3AiLCJ3b3JraW5nRGlyZWN0b3J5IjoiL1BBVEgvVE8vUkVQTy9kZXYvZG9jc3RhdHMifQ%3D%3D)
 
@@ -123,6 +128,41 @@ uv run python main.py --server-type mcp-http --host 127.0.0.1 --port 8001
   ```bash
   uv run python main.py --server-type mcp-http --mcp-http-json-response --port 8001
   ```
+
+## Agent Plugin
+
+Docstats is packaged as an **Agent Plugin v1.0.0**
+([spec](https://github.com/agentplugins/agent-plugins-spec)) so agent runtimes
+can discover its MCP server and skill without any hard-coded paths. The
+packaging is additive — it wraps the existing MCP server and does not change how
+docstats runs.
+
+Files at the repository root:
+
+| File | Purpose |
+|---|---|
+| [`plugin.json`](./plugin.json) | Plugin manifest (`name`, `version`, metadata). |
+| [`mcp.json`](./mcp.json) | Declares the STDIO MCP server `readability-docstats`, launching `uv run python ${PLUGIN_ROOT}/main.py --server-type mcp`. |
+| [`skills/readability-analysis/`](./skills/readability-analysis/) | The `readability-analysis` skill — model-facing guidance on when to run a readability check, which input source to use, and how to interpret the grade-level scores. |
+
+### The `readability-analysis` skill
+
+The skill layers judgment on top of the raw `get_readability_scores` tool: when
+to assess readability, how to choose between `text` / `web_url` / `gcs_pdf_uri`
+inputs (exactly one is required), the short-text and `spache`-null caveats, the
+Google ADC requirement for `gs://` sources, and how to translate grade-level
+scores into audience fit and concrete simplification edits. See
+[`skills/readability-analysis/SKILL.md`](./skills/readability-analysis/SKILL.md)
+and its
+[score-interpretation reference](./skills/readability-analysis/references/score-interpretation.md).
+
+### Installing
+
+Point an Agent Plugins–compatible client at this repository (the plugin root is
+the repo root). The client reads `plugin.json`, discovers the skill under
+`skills/`, and starts the MCP server from `mcp.json`. The server requires
+[`uv`](https://docs.astral.sh/uv/) on `PATH`; the first launch may need network
+access to resolve dependencies (run `uv sync` beforehand if offline).
 
 ## Development and Testing
 

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "docstats",
+  "version": "0.2.0",
+  "description": "Readability metrics for text, web pages, and PDFs, exposed as an MCP tool and skill.",
+  "author": {
+    "name": "ghchinoy",
+    "url": "https://github.com/ghchinoy"
+  },
+  "homepage": "https://github.com/ghchinoy/docstats",
+  "repository": "https://github.com/ghchinoy/docstats",
+  "license": "Apache-2.0",
+  "keywords": ["readability", "flesch-kincaid", "text-analysis", "mcp", "pdf"]
+}
