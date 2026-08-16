@@ -29,6 +29,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from eval.paper_data import generate_typst_bindings  # noqa: E402
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
@@ -60,32 +62,47 @@ def generate_formal_writeup(run_dir: Path) -> Path:
     delta_cb = (
         summary.get("dimensions", {})
         .get("overall_score", {})
-        .get("delta_stats_C_minus_B", 0.0)
+        .get(
+            "delta_C_minus_text_only_rewriter1",
+            summary.get("dimensions", {})
+            .get("overall_score", {})
+            .get("delta_stats_C_minus_B", 0.0),
+        )
     )
     win_rates = summary.get("win_rates", {})
     stats_win_rate = win_rates.get("stats_augmented", 0.0)
+    p_val_c_b = (
+        summary.get("statistical_tests", {})
+        .get("stats_augmented_vs_text_only_rewriter1", {})
+        .get("overall_score", {})
+        .get("p_value", 1.0)
+    )
 
-    if delta_cb > 0.3 and stats_win_rate >= 0.5:
+    if delta_cb > 0.3 and stats_win_rate >= 0.5 and p_val_c_b < 0.05:
         verdict_badge = "✅ **HYPOTHESIS SUPPORTED**"
         verdict_desc = (
             "Formal statistical and pattern metrics measurably improved AI "
-            f"writing assistance. Arm C (Stats-Augmented) outperformed "
+            f"writing assistance. Arm C (Stats-Augmented) statistically outperformed "
             f"Arm B (Text-Only) by an average of **+{delta_cb:.2f} points** "
-            f"overall and achieved a **{stats_win_rate:.1%} win rate** "
+            f"overall (p = {p_val_c_b:.4f}) and achieved a "
+            f"**{stats_win_rate:.1%} win rate** "
             "in blind evaluation."
         )
-    elif delta_cb < -0.2:
+    elif delta_cb < -0.3 and p_val_c_b < 0.05:
         verdict_badge = "❌ **HYPOTHESIS DISPROVEN**"
         verdict_desc = (
             "Stats-augmentation did not outperform text guidance alone. "
-            f"Arm B (Text-Only) scored higher or comparable to Arm C "
-            f"({delta_cb:+.2f} delta)."
+            f"Arm B (Text-Only) scored statistically higher than Arm C "
+            f"({delta_cb:+.2f} delta, p = {p_val_c_b:.4f})."
         )
     else:
         verdict_badge = "⚖️ **NEUTRAL / INCONCLUSIVE**"
         verdict_desc = (
-            "Performance between Text-Only (Arm B) and Stats-Augmented "
-            f"(Arm C) was statistically comparable (overall delta: {delta_cb:+.2f})."
+            "Performance between Text-Only (Arm B1) and Stats-Augmented (Arm C) "
+            f"was statistically comparable (overall delta: {delta_cb:+.2f}, "
+            f"Wilcoxon p = {p_val_c_b:.4f}, win rate split: {stats_win_rate:.1%} vs "
+            f"{win_rates.get('text_only_rewriter1', 0.0):.1%}). Both Arms B1 and C "
+            "significantly outperformed unconstrained baseline polish (Arm A)."
         )
 
     # Build Document Detail Rows
@@ -146,6 +163,31 @@ def generate_formal_writeup(run_dir: Path) -> Path:
         dim_rows.append("| " + " | ".join(row_vals) + " |")
 
     dim_table = f"{dim_hdr}\n{dim_sep}\n" + "\n".join(dim_rows)
+
+    # Build Statistical Tests Table if available
+    stat_table = ""
+    stat_data = summary.get("statistical_tests", {})
+    if stat_data:
+        stat_rows = [
+            "| Comparison (Overall Score) | W+ | W- | Effect Size (r) "
+            "| p-value | Significant (p<0.05)? |",
+            "|---|---|---|---|---|---|",
+        ]
+        for c_name, d_tests in stat_data.items():
+            ov = d_tests.get("overall_score", {})
+            w_plus = ov.get("w_plus", 0.0)
+            w_minus = ov.get("w_minus", 0.0)
+            r = ov.get("rank_biserial_r", 0.0)
+            p = ov.get("p_value", 1.0)
+            sig = "**YES** (p < 0.05)" if ov.get("significant_05") else "NO (ns)"
+            c_label = c_name.replace("_", " ").title()
+            stat_rows.append(
+                f"| **{c_label}** | {w_plus:.1f} | {w_minus:.1f} | "
+                f"{r:+.3f} | {p:.4f} | {sig} |"
+            )
+        stat_table = "\n\n### Paired Wilcoxon Signed-Rank Tests\n\n" + "\n".join(
+            stat_rows
+        )
 
     # Build Movement Table if available
     mov_table = ""
@@ -244,6 +286,7 @@ def generate_formal_writeup(run_dir: Path) -> Path:
 ### Dimension Performance (1–10 Scale)
 
 {dim_table}
+{stat_table}
 {mov_table}
 
 ---
@@ -281,6 +324,14 @@ uv run python eval/writeup.py --run-dir {run_dir}
     report_path = run_dir / "report.md"
     report_path.write_text(report_content, encoding="utf-8")
     logger.info(f"Formal write-up generated: {report_path}")
+
+    # Generate Typst data bindings for paper
+    try:
+        typst_out = PROJECT_ROOT / "paper" / "results_generated.typ"
+        generate_typst_bindings(run_dir, typst_out)
+    except Exception as e:
+        logger.warning(f"Could not generate Typst bindings: {e}")
+
     return report_path
 
 

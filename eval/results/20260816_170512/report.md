@@ -11,7 +11,7 @@
 
 ⚖️ **NEUTRAL / INCONCLUSIVE**
 
-Performance between Text-Only (Arm B) and Stats-Augmented (Arm C) was statistically comparable (overall delta: +0.00).
+Performance between Text-Only (Arm B1) and Stats-Augmented (Arm C) was statistically comparable (overall delta: -0.20, Wilcoxon p = 0.7253, win rate split: 50.0% vs 50.0%). Both Arms B1 and C significantly outperformed unconstrained baseline polish (Arm A).
 
 ### Key Aggregate Metrics:
 - **Win Rates:**
@@ -19,7 +19,7 @@ Performance between Text-Only (Arm B) and Stats-Augmented (Arm C) was statistica
   - stats_augmented: **50.0%**
   - text_only_rewriter1: **50.0%**
   - text_only_rewriter2: **0.0%**
-- **Overall Quality Delta (Stats vs Reference):** **+0.00 / 10**
+- **Overall Quality Delta (Stats vs Reference):** **-0.20 / 10**
 
 ---
 
@@ -57,6 +57,16 @@ The `technical-post-editorial` framework establishes rule-based guidance to coun
 | **Authenticity** | 7.29 | 9.18 | 8.96 | 6.89 | +0.22 |
 | **Density** | 7.18 | 8.82 | 9.14 | 7.75 | -0.32 |
 | **Technical Integrity** | 8.39 | 8.75 | 9.00 | 8.11 | -0.25 |
+
+
+### Paired Wilcoxon Signed-Rank Tests
+
+| Comparison (Overall Score) | W+ | W- | Effect Size (r) | p-value | Significant (p<0.05)? |
+|---|---|---|---|---|---|
+| **Stats Augmented Vs Control** | 96.5 | 8.5 | +0.838 | 0.0034 | **YES** (p < 0.05) |
+| **Stats Augmented Vs Text Only Rewriter1** | 46.5 | 58.5 | -0.114 | 0.7253 | NO (ns) |
+| **Stats Augmented Vs Text Only Rewriter2** | 104.0 | 1.0 | +0.981 | 0.0002 | **YES** (p < 0.05) |
+| **Text Only Rewriter1 Vs Control** | 104.0 | 1.0 | +0.981 | 0.0002 | **YES** (p < 0.05) |
 
 
 ### Objective Pre -> Post Movement

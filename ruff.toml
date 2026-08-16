@@ -13,6 +13,10 @@ ignore = [
     "D104", # Missing docstring in public package
 ]
 
+[lint.per-file-ignores]
+# paper_data.py emits long Typst table rows inside string templates.
+"eval/paper_data.py" = ["E501"]
+
 [lint.pydocstyle]
 convention = "google"
 

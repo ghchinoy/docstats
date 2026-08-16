@@ -15,12 +15,14 @@
 """Statistical aggregation and effect sizing for A/B experiment runs.
 
 Computes aggregate mean, standard deviation, pairwise deltas (C - B, B - A),
-and win rates across experimental arms.
+win rates across experimental arms, and dependency-free paired Wilcoxon signed-rank
+tests with exact permutation p-values and effect sizes.
 """
 
 import argparse
 import json
 import logging
+import math
 import statistics
 import sys
 from pathlib import Path
@@ -44,6 +46,74 @@ SCORE_DIMENSIONS = [
     "density",
     "technical_integrity",
 ]
+
+
+def wilcoxon_signed_rank_test(x: List[float], y: List[float]) -> Dict[str, Any]:
+    """Calculates a paired Wilcoxon signed-rank test without external dependencies.
+
+    Uses exact permutation distribution for N <= 20 non-zero differences and
+    normal approximation with continuity correction for larger samples.
+    """
+    diffs = [a - b for a, b in zip(x, y)]
+    non_zero = [d for d in diffs if abs(d) > 1e-9]
+    n = len(non_zero)
+    if n == 0:
+        return {
+            "n_nonzero": 0,
+            "p_value": 1.0,
+            "rank_biserial_r": 0.0,
+            "w_stat": 0.0,
+            "w_plus": 0.0,
+            "w_minus": 0.0,
+            "significant_05": False,
+        }
+
+    abs_diffs = sorted([(abs(d), i, d) for i, d in enumerate(non_zero)])
+    ranks = [0.0] * n
+    i = 0
+    while i < n:
+        j = i
+        while j < n and abs(abs_diffs[j][0] - abs_diffs[i][0]) < 1e-9:
+            j += 1
+        avg_rank = (i + 1 + j) / 2.0
+        for k in range(i, j):
+            ranks[k] = avg_rank
+        i = j
+
+    w_plus = sum(r for (ad, idx, d), r in zip(abs_diffs, ranks) if d > 0)
+    w_minus = sum(r for (ad, idx, d), r in zip(abs_diffs, ranks) if d < 0)
+    w_stat = min(w_plus, w_minus)
+    total_w = w_plus + w_minus
+    r_biserial = (w_plus - w_minus) / total_w if total_w > 0 else 0.0
+
+    if n <= 20:
+        rank_vals = [r for (ad, idx, d), r in zip(abs_diffs, ranks)]
+        count = 0
+        total_perms = 1 << n
+        target = w_stat
+        for mask in range(total_perms):
+            s = 0.0
+            for bit in range(n):
+                if (mask >> bit) & 1:
+                    s += rank_vals[bit]
+            if s <= target + 1e-9:
+                count += 1
+        p_val = min(1.0, 2.0 * count / total_perms)
+    else:
+        mu = n * (n + 1) / 4.0
+        sigma = math.sqrt(n * (n + 1) * (2 * n + 1) / 24.0)
+        z = (abs(w_stat - mu) - 0.5) / sigma if sigma > 0 else 0.0
+        p_val = math.erfc(abs(z) / math.sqrt(2.0))
+
+    return {
+        "n_nonzero": n,
+        "w_plus": round(w_plus, 2),
+        "w_minus": round(w_minus, 2),
+        "w_stat": round(w_stat, 2),
+        "rank_biserial_r": round(r_biserial, 3),
+        "p_value": round(p_val, 4),
+        "significant_05": p_val < 0.05,
+    }
 
 
 def analyze_run_results(run_dir: Path) -> Dict[str, Any]:
@@ -107,6 +177,7 @@ def analyze_run_results(run_dir: Path) -> Dict[str, Any]:
         "win_counts": win_counts,
         "win_rates": {k: round(v / n_docs, 3) for k, v in win_counts.items()},
         "dimensions": {},
+        "statistical_tests": {},
         "movement_by_arm": {},
     }
 
@@ -133,6 +204,33 @@ def analyze_run_results(run_dir: Path) -> Dict[str, Any]:
                     )
 
         summary_stats["dimensions"][dim] = dim_summary
+
+    # Paired Wilcoxon Signed-Rank Significance Tests
+    if "stats_augmented" in arm_names:
+        c_scores = arm_metrics["stats_augmented"]
+        for arm_name in arm_names:
+            if arm_name == "stats_augmented":
+                continue
+            contrast_key = f"stats_augmented_vs_{arm_name}"
+            summary_stats["statistical_tests"][contrast_key] = {}
+            for dim in SCORE_DIMENSIONS:
+                c_vals = c_scores[dim]
+                other_vals = arm_metrics[arm_name][dim]
+                if len(c_vals) == len(other_vals) and len(c_vals) > 0:
+                    test_res = wilcoxon_signed_rank_test(c_vals, other_vals)
+                    summary_stats["statistical_tests"][contrast_key][dim] = test_res
+
+    # Text-only 1 vs Control contrast
+    if "text_only_rewriter1" in arm_names and "control" in arm_names:
+        b1_scores = arm_metrics["text_only_rewriter1"]
+        contrast_key = "text_only_rewriter1_vs_control"
+        summary_stats["statistical_tests"][contrast_key] = {}
+        for dim in SCORE_DIMENSIONS:
+            b1_vals = b1_scores[dim]
+            ctrl_vals = arm_metrics["control"][dim]
+            if len(b1_vals) == len(ctrl_vals) and len(b1_vals) > 0:
+                test_res = wilcoxon_signed_rank_test(b1_vals, ctrl_vals)
+                summary_stats["statistical_tests"][contrast_key][dim] = test_res
 
     # Aggregate Pre -> Post docstats Movement
     if telemetry_records:
@@ -209,6 +307,30 @@ def print_summary_table(summary: Dict[str, Any]):
             m = data.get(arm, {}).get("mean", 0.0)
             row_vals.append(f"{m:<14.2f}")
         print(f"{dim:<22} | " + " | ".join(row_vals))
+
+    # Print Statistical Significance Tests
+    stat_tests = summary.get("statistical_tests", {})
+    if stat_tests:
+        print("-" * 90)
+        print("Paired Wilcoxon Signed-Rank Significance Tests (overall_score):")
+        header = (
+            f"{'Comparison':<36} | {'W+':<6} | {'W-':<6} | "
+            f"{'Effect (r)':<10} | {'p-value':<9} | {'Sig (p<0.05)':<12}"
+        )
+        print(header)
+        print("-" * 90)
+        for contrast, dims in stat_tests.items():
+            ov = dims.get("overall_score", {})
+            w_plus = ov.get("w_plus", 0.0)
+            w_minus = ov.get("w_minus", 0.0)
+            r = ov.get("rank_biserial_r", 0.0)
+            p = ov.get("p_value", 1.0)
+            sig = "YES (*)" if ov.get("significant_05") else "NO (ns)"
+            row = (
+                f"{contrast:<36} | {w_plus:<6.1f} | {w_minus:<6.1f} | "
+                f"{r:<10.3f} | {p:<9.4f} | {sig:<12}"
+            )
+            print(row)
 
     # Print Movement Section if available
     mov = summary.get("movement_by_arm", {})
