@@ -9,6 +9,8 @@
 issue-prefix: "docstats"
 sync:
     remote: "git+ssh://git@github.com/ghchinoy/docstats.git"
+dolt:
+    local-only: true
 
 # Use no-db mode: load from JSONL, no SQLite, write back after each command
 # When true, bd will use .beads/issues.jsonl as the source of truth
