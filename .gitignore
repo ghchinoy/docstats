@@ -31,7 +31,4 @@ others/
 .beads/proxieddb/
 *.gate.lock*
 
-# Draft papers and Typst preprint outputs
-# Paper sources (.typ) are tracked; compiled PDFs are ignored.
-preprint/
 *.pdf
