@@ -17,20 +17,55 @@ import logging
 from fastapi import FastAPI, HTTPException
 
 from extraction import get_processed_text
-from metrics import calculate_readability_metrics_logic
-from models import ReadabilityScoresModel, TextSourceModel
+from metrics import (
+    analyze_document_logic,
+    calculate_ai_patterns_logic,
+    calculate_readability_metrics_logic,
+)
+from models import (
+    AIPatternScoresModel,
+    DocumentAnalysisModel,
+    ReadabilityScoresModel,
+    TextSourceModel,
+)
 
 logger = logging.getLogger(__name__)
 
-fastapi_app = FastAPI(title="Readability API", version="0.2.0")
+fastapi_app = FastAPI(title="Readability & Document Analysis API", version="0.3.0")
 
 
 @fastapi_app.post("/scores/", response_model=ReadabilityScoresModel)
 async def scores_fastapi(req: TextSourceModel):
-    """FastAPI endpoint to calculate readability scores."""
+    """FastAPI endpoint to calculate readability scores (Axis A)."""
     try:
         text, desc = await get_processed_text(req)
         return await calculate_readability_metrics_logic(text, desc)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"FastAPI error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error.")
+
+
+@fastapi_app.post("/patterns/", response_model=AIPatternScoresModel)
+async def patterns_fastapi(req: TextSourceModel):
+    """FastAPI endpoint to calculate AI writing pattern scores (Axis B)."""
+    try:
+        text, desc = await get_processed_text(req)
+        return await calculate_ai_patterns_logic(text, desc)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"FastAPI error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error.")
+
+
+@fastapi_app.post("/analyze/", response_model=DocumentAnalysisModel)
+async def analyze_fastapi(req: TextSourceModel):
+    """FastAPI endpoint for combined two-axis document analysis (Axis A + Axis B)."""
+    try:
+        text, desc = await get_processed_text(req)
+        return await analyze_document_logic(text, desc)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -62,3 +62,32 @@ class ReadabilityScoresModel(BaseModel):
     syllable_count: int
     word_count: int
     sentence_count: int
+
+
+class AIPatternScoresModel(BaseModel):
+    """Model for AI writing pattern detection counts, rates, and scores (Axis B)."""
+
+    em_dash_count: int = 0
+    em_dash_rate: float = 0.0
+    adverb_ly_count: int = 0
+    adverb_ly_rate: float = 0.0
+    throat_clearing_count: int = 0
+    binary_contrast_count: int = 0
+    wh_starter_count: int = 0
+    wh_starter_rate: float = 0.0
+    fragment_count: int = 0
+    list_of_three_count: int = 0
+    sentence_len_cv: float = 0.0
+    vague_declarative_count: int = 0
+    passive_hint_count: int = 0
+    total_tells: int = 0
+    ai_tell_score: float = 10.0
+    confidence: str = "high"
+    flags: List[str] = Field(default_factory=list)
+
+
+class DocumentAnalysisModel(BaseModel):
+    """Combined two-axis analysis model (Readability + AI Pattern Detection)."""
+
+    readability: ReadabilityScoresModel
+    ai_patterns: AIPatternScoresModel

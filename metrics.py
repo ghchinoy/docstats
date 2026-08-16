@@ -22,7 +22,12 @@ import nltk
 import textstat
 from readability import Readability
 
-from models import ReadabilityScoresModel
+from ai_patterns import detect_ai_patterns
+from models import (
+    AIPatternScoresModel,
+    DocumentAnalysisModel,
+    ReadabilityScoresModel,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -97,8 +102,37 @@ def _sync_calculate_metrics(text: str, src_desc: str) -> ReadabilityScoresModel:
     )
 
 
+def _sync_calculate_ai_patterns(text: str, src_desc: str) -> AIPatternScoresModel:
+    """Synchronous CPU-bound calculation of AI writing pattern detection (Axis B)."""
+    if not text.strip():
+        raise ValueError("Empty text.")
+
+    wc = textstat.lexicon_count(text)
+    if wc == 0:
+        raise ValueError("Zero words.")
+
+    return detect_ai_patterns(text, wc)
+
+
+def _sync_analyze_document(text: str, src_desc: str) -> DocumentAnalysisModel:
+    """Synchronous calculation of both Readability (Axis A) and AI Patterns (Axis B)."""
+    readability = _sync_calculate_metrics(text, src_desc)
+    ai_patterns = detect_ai_patterns(text, readability.word_count)
+    return DocumentAnalysisModel(readability=readability, ai_patterns=ai_patterns)
+
+
 async def calculate_readability_metrics_logic(
     text: str, src_desc: str
 ) -> ReadabilityScoresModel:
     """Calculates all readability metrics asynchronously without event loop block."""
     return await anyio.to_thread.run_sync(_sync_calculate_metrics, text, src_desc)
+
+
+async def calculate_ai_patterns_logic(text: str, src_desc: str) -> AIPatternScoresModel:
+    """Calculates AI writing pattern metrics asynchronously without event loop block."""
+    return await anyio.to_thread.run_sync(_sync_calculate_ai_patterns, text, src_desc)
+
+
+async def analyze_document_logic(text: str, src_desc: str) -> DocumentAnalysisModel:
+    """Calculates both Readability (Axis A) and AI Patterns (Axis B) asynchronously."""
+    return await anyio.to_thread.run_sync(_sync_analyze_document, text, src_desc)
