@@ -1,0 +1,26 @@
+id: 03-async-job-queues-g25
+title: Architecting Resilient Asynchronous Job Queues with RabbitMQ (gemini-2.5-flash)
+doc_type: architecture_rfc
+source_tier: generated_ai
+generator_model: gemini-2.5-flash
+generator_provider: gemini
+license: Apache-2.0
+source_url: null
+generation_prompt: Write a 250-word architecture RFC proposing an asynchronous task
+  processing pipeline using RabbitMQ, covering dead-letter exchanges, idempotency
+  keys, and consumer backpressure.
+provenance: Generated via gemini-2.5-flash from realistic technical developer brief
+target:
+  audience: Systems Architects & Senior Developers
+  band: Very Dense
+  expected_fk_grade_min: 12.0
+  expected_fk_grade_max: 16.0
+known_tells:
+  em_dashes: true
+  throat_clearing: true
+  binary_contrasts: true
+  high_adverb_density: false
+  wh_starters: true
+  fragments: true
+  vague_declaratives: true
+  metronomic_rhythm: false

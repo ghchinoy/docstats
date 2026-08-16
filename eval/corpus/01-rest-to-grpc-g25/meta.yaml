@@ -1,14 +1,16 @@
-id: 01-rest-to-grpc
-title: Migrating Internal Services from REST to gRPC
+id: 01-rest-to-grpc-g25
+title: Migrating Internal Services from REST to gRPC (gemini-2.5-flash)
 doc_type: migration_guide
 source_tier: generated_ai
+generator_model: gemini-2.5-flash
+generator_provider: gemini
 license: Apache-2.0
 source_url: null
 generation_prompt: Write a 250-word developer migration guide about transitioning
   internal service communication from JSON REST over HTTP/1.1 to Protobuf gRPC over
   HTTP/2. Explain why we made the switch, the latency payoffs, and how to update client
   stubs.
-provenance: Generated via Gemini 3.7 Flash from realistic technical developer brief
+provenance: Generated via gemini-2.5-flash from realistic technical developer brief
 target:
   audience: Backend Infrastructure Engineers
   band: Dense

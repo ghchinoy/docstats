@@ -167,6 +167,93 @@ class GeminiLLMClient:
         )
 
 
+class ClaudeVertexLLMClient:
+    """Anthropic Claude client using the AnthropicVertex SDK (Model Garden).
+
+    Requires Claude models enabled in the target GCP project's Vertex AI
+    Model Garden. Falls back gracefully with a clear error if unavailable.
+    """
+
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        region: str = "us-east5",
+        model: str = "claude-3-7-sonnet@20250219",
+    ):
+        """Initializes the Claude-on-Vertex client."""
+        from anthropic import AnthropicVertex
+
+        self.model = model
+        self.region = region
+        self.auth_mode = "vertex_anthropic"
+        resolved_project = project or os.environ.get("GOOGLE_CLOUD_PROJECT")
+        self.client = AnthropicVertex(project_id=resolved_project, region=region)
+        logger.info(
+            f"Initialized Claude client via Vertex AI "
+            f"(project={resolved_project}, region={region}, model={model})."
+        )
+
+    def generate(
+        self,
+        prompt: str,
+        system_instruction: Optional[str] = None,
+        temperature: float = 0.2,
+        seed: Optional[int] = 42,
+        tools: Optional[List[Callable]] = None,
+        model_override: Optional[str] = None,
+        max_tokens: int = 4096,
+    ) -> LLMResponse:
+        """Executes a Claude text generation call."""
+        active_model = model_override or self.model
+
+        kwargs: Dict[str, Any] = {
+            "model": active_model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if system_instruction:
+            kwargs["system"] = system_instruction
+
+        start_time = time.perf_counter()
+        response = self.client.messages.create(**kwargs)
+        latency = time.perf_counter() - start_time
+
+        text_parts = [
+            block.text for block in response.content if hasattr(block, "text")
+        ]
+        response_text = "".join(text_parts)
+
+        input_toks = getattr(response.usage, "input_tokens", 0) or 0
+        output_toks = getattr(response.usage, "output_tokens", 0) or 0
+
+        usage = UsageStats(
+            prompt_tokens=input_toks,
+            candidate_tokens=output_toks,
+            total_tokens=input_toks + output_toks,
+            latency_seconds=round(latency, 3),
+        )
+
+        return LLMResponse(
+            text=response_text,
+            model=active_model,
+            usage=usage,
+            raw_response=response,
+        )
+
+
+def get_llm_client(model: Optional[str] = None):
+    """Provider-agnostic factory selecting a client by model id prefix.
+
+    - `claude-*` -> ClaudeVertexLLMClient (Vertex AI Model Garden)
+    - anything else (default) -> GeminiLLMClient
+    """
+    resolved = model or DEFAULT_MODEL
+    if resolved.lower().startswith("claude"):
+        return ClaudeVertexLLMClient(model=resolved)
+    return GeminiLLMClient(model=resolved)
+
+
 def get_default_llm_client(model: Optional[str] = None) -> GeminiLLMClient:
     """Convenience factory to get the configured default LLM client."""
     return GeminiLLMClient(model=model or DEFAULT_MODEL)

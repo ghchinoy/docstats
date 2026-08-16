@@ -27,12 +27,17 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from eval.llm_client import GeminiLLMClient  # noqa: E402
+from eval.llm_client import get_llm_client  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+GENERATOR_MODELS = [
+    {"name": "g37", "model_id": "gemini-3.7-flash", "provider": "gemini"},
+    {"name": "g25", "model_id": "gemini-2.5-flash", "provider": "gemini"},
+]
 
 FALLBACK_01 = (
     "# Migrating Internal Services from REST to gRPC\n\n"
@@ -185,76 +190,84 @@ TIER_1_BRIEFS: List[Dict[str, Any]] = [
 def generate_tier_1_documents(
     output_dir: Path, use_live_api: bool = True
 ) -> List[Path]:
-    """Generates and writes Tier 1 documents into the corpus directory."""
+    """Generates and writes cross-model Tier 1 documents into the corpus directory."""
     created_paths = []
-    client = None
 
-    if use_live_api:
-        try:
-            client = GeminiLLMClient(model="gemini-3.7-flash")
-            logger.info(
-                f"Initialized Gemini ({client.auth_mode}) for Tier 1 generation."
-            )
-        except Exception as e:
-            logger.warning(f"Could not initialize live Gemini ({e}); using fallback.")
-            use_live_api = False
+    for model_info in GENERATOR_MODELS:
+        model_name = model_info["name"]
+        model_id = model_info["model_id"]
+        provider = model_info["provider"]
 
-    for brief in TIER_1_BRIEFS:
-        doc_dir = output_dir / brief["id"]
-        doc_dir.mkdir(parents=True, exist_ok=True)
-
-        source_text = brief["offline_fallback"]
-
-        if use_live_api and client:
+        client = None
+        if use_live_api:
             try:
-                logger.info(f"Generating AI draft for {brief['id']} via Gemini...")
-                resp = client.generate(
-                    prompt=brief["prompt"],
-                    system_instruction=(
-                        "You are a software engineer writing a technical draft. "
-                        "Output clean markdown."
-                    ),
-                    temperature=0.7,
+                client = get_llm_client(model=model_id)
+                logger.info(
+                    f"Initialized client for {model_id} (provider: {provider})."
                 )
-                if resp.text.strip():
-                    source_text = resp.text.strip()
             except Exception as e:
                 logger.warning(
-                    f"Live generation failed for {brief['id']} ({e}); using fallback."
+                    f"Could not initialize {model_id} ({e}); using offline fallback."
                 )
 
-        (doc_dir / "source.md").write_text(source_text, encoding="utf-8")
+        for brief in TIER_1_BRIEFS:
+            doc_id = f"{brief['id']}-{model_name}"
+            doc_dir = output_dir / doc_id
+            doc_dir.mkdir(parents=True, exist_ok=True)
 
-        meta_content = {
-            "id": brief["id"],
-            "title": brief["title"],
-            "doc_type": brief["doc_type"],
-            "source_tier": "generated_ai",
-            "license": "Apache-2.0",
-            "source_url": None,
-            "generation_prompt": brief["prompt"],
-            "provenance": (
-                "Generated via Gemini 3.7 Flash from realistic technical "
-                "developer brief"
-            ),
-            "target": brief["target"],
-            "known_tells": {
-                "em_dashes": True,
-                "throat_clearing": True,
-                "binary_contrasts": True,
-                "high_adverb_density": False,
-                "wh_starters": True,
-                "fragments": True,
-                "vague_declaratives": True,
-                "metronomic_rhythm": False,
-            },
-        }
+            source_text = brief["offline_fallback"]
 
-        (doc_dir / "meta.yaml").write_text(
-            yaml.dump(meta_content, sort_keys=False), encoding="utf-8"
-        )
-        created_paths.append(doc_dir)
-        logger.info(f"Wrote Tier 1 corpus document: {doc_dir}")
+            if use_live_api and client:
+                try:
+                    logger.info(f"Generating AI draft for {doc_id} via {model_id}...")
+                    resp = client.generate(
+                        prompt=brief["prompt"],
+                        system_instruction=(
+                            "You are a software engineer writing a technical draft. "
+                            "Output clean markdown."
+                        ),
+                        temperature=0.7,
+                    )
+                    if resp.text.strip():
+                        source_text = resp.text.strip()
+                except Exception as e:
+                    logger.warning(
+                        f"Live generation failed for {doc_id} ({e}); using fallback."
+                    )
+
+            (doc_dir / "source.md").write_text(source_text, encoding="utf-8")
+
+            meta_content = {
+                "id": doc_id,
+                "title": f"{brief['title']} ({model_id})",
+                "doc_type": brief["doc_type"],
+                "source_tier": "generated_ai",
+                "generator_model": model_id,
+                "generator_provider": provider,
+                "license": "Apache-2.0",
+                "source_url": None,
+                "generation_prompt": brief["prompt"],
+                "provenance": (
+                    f"Generated via {model_id} from realistic technical developer brief"
+                ),
+                "target": brief["target"],
+                "known_tells": {
+                    "em_dashes": True,
+                    "throat_clearing": True,
+                    "binary_contrasts": True,
+                    "high_adverb_density": False,
+                    "wh_starters": True,
+                    "fragments": True,
+                    "vague_declaratives": True,
+                    "metronomic_rhythm": False,
+                },
+            }
+
+            (doc_dir / "meta.yaml").write_text(
+                yaml.dump(meta_content, sort_keys=False), encoding="utf-8"
+            )
+            created_paths.append(doc_dir)
+            logger.info(f"Wrote Tier 1 corpus document: {doc_dir}")
 
     return created_paths
 

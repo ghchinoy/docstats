@@ -30,3 +30,8 @@ others/
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# Draft papers and Typst preprint outputs (gitignored)
+paper/
+preprint/
+*.pdf

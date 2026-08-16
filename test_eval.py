@@ -23,16 +23,49 @@ from eval.analyze_results import analyze_run_results
 from eval.corpus.capture_baselines import capture_corpus_baselines
 from eval.corpus.generate_drafts import generate_tier_1_documents
 from eval.judge import compute_held_out_metrics, evaluate_document_blind
-from eval.llm_client import GeminiLLMClient, LLMResponse, UsageStats
+from eval.llm_client import (
+    ClaudeVertexLLMClient,
+    GeminiLLMClient,
+    LLMResponse,
+    UsageStats,
+    get_llm_client,
+)
 from eval.mcp_client import DocstatsMCPClient
 from eval.run_experiment import (
+    compute_docstats_movement,
     load_arm_prompt,
     load_corpus_documents,
     run_arm_a,
-    run_arm_b,
+    run_arm_b1,
+    run_arm_b2,
     run_arm_c,
 )
 from eval.writeup import generate_formal_writeup
+
+
+def test_llm_client_factory():
+    """Verifies provider-agnostic factory routing for Gemini and Claude."""
+    client_gemini = get_llm_client("gemini-3.7-flash")
+    assert isinstance(client_gemini, GeminiLLMClient)
+
+    client_claude = get_llm_client("claude-3-7-sonnet@20250219")
+    assert isinstance(client_claude, ClaudeVertexLLMClient)
+
+
+def test_compute_docstats_movement():
+    """Verifies pre -> post docstats movement calculations."""
+    pre = {
+        "readability": {"flesch_kincaid_grade": 14.0},
+        "ai_patterns": {"ai_tell_score": 4.0, "total_tells": 10},
+    }
+    post = {
+        "readability": {"flesch_kincaid_grade": 10.5},
+        "ai_patterns": {"ai_tell_score": 8.5, "total_tells": 2},
+    }
+    mov = compute_docstats_movement(pre, post)
+    assert mov["delta_ai_tell_score"] == 4.5
+    assert mov["delta_fk_grade"] == -3.5
+    assert mov["delta_total_tells"] == -8
 
 
 def test_load_arm_prompts():
@@ -47,7 +80,7 @@ def test_load_corpus_documents():
     """Verifies that corpus loader discovers valid documents."""
     corpus_dir = Path(__file__).parent / "eval" / "corpus"
     docs = load_corpus_documents(corpus_dir)
-    assert len(docs) >= 1
+    assert len(docs) == 14
     sample_doc = docs[0]
     assert "id" in sample_doc
     assert "source_text" in sample_doc
@@ -66,7 +99,7 @@ def test_compute_held_out_metrics():
 
 @pytest.mark.asyncio
 async def test_run_arms_with_mocked_llm(mocker):
-    """Verifies execution of Arms A, B, and C with mocked LLM and MCP."""
+    """Verifies execution of Arms A, B1, B2, and C with mocked LLM and MCP."""
     mock_llm = MagicMock(spec=GeminiLLMClient)
     mock_llm.model = "mock-gemini"
     mock_llm.generate.return_value = LLMResponse(
@@ -86,10 +119,15 @@ async def test_run_arms_with_mocked_llm(mocker):
     assert res_a["arm"] == "control"
     assert "Revised" in res_a["revised_text"]
 
-    # Test Arm B
-    res_b = await run_arm_b(mock_llm, doc)
-    assert res_b["arm"] == "text_only"
-    assert "Revised" in res_b["revised_text"]
+    # Test Arm B1
+    res_b1 = await run_arm_b1(mock_llm, doc)
+    assert res_b1["arm"] == "text_only_rewriter1"
+    assert "Revised" in res_b1["revised_text"]
+
+    # Test Arm B2
+    res_b2 = await run_arm_b2(mock_llm, doc)
+    assert res_b2["arm"] == "text_only_rewriter2"
+    assert "Revised" in res_b2["revised_text"]
 
     # Test Arm C
     mock_mcp = MagicMock(spec=DocstatsMCPClient)
@@ -117,7 +155,8 @@ def test_evaluate_and_writeup_pipeline(tmp_path):
         "id: sample-doc\ntitle: Sample Doc\n", encoding="utf-8"
     )
     (doc_dir / "arm_a.md").write_text("Arm A revision.", encoding="utf-8")
-    (doc_dir / "arm_b.md").write_text("Arm B revision.", encoding="utf-8")
+    (doc_dir / "arm_b1.md").write_text("Arm B1 revision.", encoding="utf-8")
+    (doc_dir / "arm_b2.md").write_text("Arm B2 revision.", encoding="utf-8")
     (doc_dir / "arm_c.md").write_text("Arm C revision.", encoding="utf-8")
 
     (run_dir / "manifest.json").write_text(
@@ -136,7 +175,7 @@ def test_evaluate_and_writeup_pipeline(tmp_path):
     mock_llm = MagicMock(spec=GeminiLLMClient)
     judge_json_response = json.dumps(
         {
-            "rankings": ["Candidate 1", "Candidate 2", "Candidate 3"],
+            "rankings": ["Candidate 1", "Candidate 2", "Candidate 3", "Candidate 4"],
             "candidates": {
                 "Candidate 1": {
                     "overall_score": 9.0,
@@ -148,21 +187,30 @@ def test_evaluate_and_writeup_pipeline(tmp_path):
                     "critique": "Strong output",
                 },
                 "Candidate 2": {
-                    "overall_score": 7.5,
-                    "directness": 7.5,
-                    "rhythm": 7.0,
-                    "authenticity": 7.5,
-                    "density": 7.5,
-                    "technical_integrity": 8.0,
-                    "critique": "Adequate",
+                    "overall_score": 8.0,
+                    "directness": 8.0,
+                    "rhythm": 7.5,
+                    "authenticity": 8.0,
+                    "density": 8.0,
+                    "technical_integrity": 8.5,
+                    "critique": "Good",
                 },
                 "Candidate 3": {
+                    "overall_score": 7.0,
+                    "directness": 7.0,
+                    "rhythm": 7.0,
+                    "authenticity": 7.0,
+                    "density": 7.0,
+                    "technical_integrity": 7.5,
+                    "critique": "Adequate",
+                },
+                "Candidate 4": {
                     "overall_score": 6.0,
                     "directness": 6.0,
                     "rhythm": 6.0,
                     "authenticity": 6.0,
                     "density": 6.0,
-                    "technical_integrity": 7.0,
+                    "technical_integrity": 6.5,
                     "critique": "Basic",
                 },
             },
@@ -199,7 +247,7 @@ def test_corpus_extended_schema_and_integrity():
     """Verifies that all corpus documents meet extended schema requirements."""
     corpus_dir = Path(__file__).parent / "eval" / "corpus"
     docs = load_corpus_documents(corpus_dir)
-    assert len(docs) == 10
+    assert len(docs) == 14
 
     valid_tiers = {"generated_ai", "synthetic_curated", "public_licensed"}
 
@@ -229,7 +277,7 @@ def test_generate_drafts_offline_fallback(tmp_path):
     """Verifies offline generation of Tier 1 corpus documents."""
     out_dir = tmp_path / "corpus_gen"
     paths = generate_tier_1_documents(out_dir, use_live_api=False)
-    assert len(paths) == 4
+    assert len(paths) == 8
     for p in paths:
         assert (p / "source.md").exists()
         assert (p / "meta.yaml").exists()

@@ -1,0 +1,9 @@
+## Scaling Global Caching: Our Active-Active Multi-Region Redis Architecture
+
+Scaling a global application to 100,000 requests per second (RPS) demands an equally robust caching layer. For our distributed services, a single-region Redis setup was becoming a bottleneck for cross-region users, leading to increased latency and a fragmented user experience.
+
+To address this, our team engineered a multi-region, active-active Redis caching solution. Instead of a traditional primary-replica model, each region hosts an independent, writable Redis cluster, serving local traffic with minimal latency. User requests are intelligently routed to their nearest regional cache, ensuring optimal performance.
+
+The core challenge with active-active systems is maintaining data consistency and avoiding "split-brain" scenarios, where divergent data states emerge across regions. We implemented a custom replication layer that propagates writes asynchronously between regions. For conflict resolution, we adopted a "Last-Write-Wins" (LWW) strategy, using a globally synchronized timestamp on each cache entry. When a conflict is detected during replication, the entry with the most recent timestamp prevails. This simple yet effective mechanism ensures eventual consistency and prevents divergent data states without complex consensus protocols.
+
+This architecture has dramatically improved our application's performance. With local reads and robust cross-region synchronization, we now comfortably handle over 100k RPS globally, maintaining sub-10ms cache access times for the majority of our users. Our active-active setup provides exceptional resilience; a regional outage no longer impacts other regions, as each can operate independently while replication catches up once the region recovers. This robust, low-latency caching foundation is critical for our continued global scale.

@@ -84,46 +84,81 @@ def generate_formal_writeup(run_dir: Path) -> Path:
 
     # Build Document Detail Rows
     doc_sections = []
+    evaluated_arms = summary.get("evaluated_arms", [])
+
     for doc in doc_evals:
         doc_id = doc.get("document_id", "Unknown")
         rankings = ", ".join(doc.get("judge_summary", {}).get("rankings_blinded", []))
         rationale = doc.get("judge_summary", {}).get("rationale", "")
         scores = doc.get("scores_by_arm", {})
 
-        s_a = (
-            scores.get("control", {}).get("judge_ratings", {}).get("overall_score", 0.0)
-        )
-        s_b = (
-            scores.get("text_only", {})
-            .get("judge_ratings", {})
-            .get("overall_score", 0.0)
-        )
-        s_c = (
-            scores.get("stats_augmented", {})
-            .get("judge_ratings", {})
-            .get("overall_score", 0.0)
-        )
+        score_parts = []
+        for arm in evaluated_arms:
+            arm_sc = (
+                scores.get(arm, {}).get("judge_ratings", {}).get("overall_score", 0.0)
+            )
+            score_parts.append(f"{arm}: `{arm_sc}`")
+
+        scores_str = " | ".join(score_parts)
 
         doc_sections.append(
             f"### Document: `{doc_id}`\n\n"
             f"- **Blind Rankings:** {rankings}\n"
-            f"- **Overall Scores:** Control: `{s_a}` | Text-Only: `{s_b}` | "
-            f"Stats-Augmented: `{s_c}`\n"
+            f"- **Overall Scores:** {scores_str}\n"
             f"- **Judge Rationale:** {rationale}\n"
         )
 
     # Build Dimension Summary Rows
     dim_rows = []
+    header_cols = ["Dimension"] + [
+        arm.replace("_", " ").title() for arm in evaluated_arms
+    ]
+    if "stats_augmented" in evaluated_arms and len(evaluated_arms) > 1:
+        header_cols.append("Delta (Stats vs Primary Text)")
+
+    dim_hdr = "| " + " | ".join(header_cols) + " |"
+    dim_sep = "| " + " | ".join(["---"] * len(header_cols)) + " |"
+
     for dim, data in summary.get("dimensions", {}).items():
-        m_a = data.get("control", {}).get("mean", 0.0)
-        m_b = data.get("text_only", {}).get("mean", 0.0)
-        m_c = data.get("stats_augmented", {}).get("mean", 0.0)
-        d_cb = data.get("delta_stats_C_minus_B", 0.0)
-        sign = "+" if d_cb > 0 else ""
         dim_name = dim.replace("_", " ").title()
-        dim_rows.append(
-            f"| **{dim_name}** | {m_a:.2f} | {m_b:.2f} | {m_c:.2f} | {sign}{d_cb:.2f} |"
-        )
+        row_vals = [f"**{dim_name}**"]
+        for arm in evaluated_arms:
+            m = data.get(arm, {}).get("mean", 0.0)
+            row_vals.append(f"{m:.2f}")
+        if "stats_augmented" in evaluated_arms and len(evaluated_arms) > 1:
+            ref_arm = (
+                "text_only_rewriter1"
+                if "text_only_rewriter1" in evaluated_arms
+                else "text_only"
+            )
+            if ref_arm not in evaluated_arms and "control" in evaluated_arms:
+                ref_arm = "control"
+            delta = data.get(f"delta_C_minus_{ref_arm}", 0.0)
+            sign = "+" if delta > 0 else ""
+            row_vals.append(f"{sign}{delta:.2f}")
+
+        dim_rows.append("| " + " | ".join(row_vals) + " |")
+
+    dim_table = f"{dim_hdr}\n{dim_sep}\n" + "\n".join(dim_rows)
+
+    # Build Movement Table if available
+    mov_table = ""
+    mov_data = summary.get("movement_by_arm", {})
+    if mov_data:
+        mov_rows = [
+            "| Arm | Δ AI Tell Score | Δ FK Grade | Δ Total Tells |",
+            "|---|---|---|---|",
+        ]
+        for arm, m in mov_data.items():
+            d_ai = m.get("mean_delta_ai_score", 0.0)
+            d_fk = m.get("mean_delta_fk_grade", 0.0)
+            d_t = m.get("mean_delta_tells", 0.0)
+            s_ai = "+" if d_ai > 0 else ""
+            s_fk = "+" if d_fk > 0 else ""
+            mov_rows.append(
+                f"| **{arm}** | {s_ai}{d_ai:.2f} | {s_fk}{d_fk:.2f} | {d_t:.1f} |"
+            )
+        mov_table = "\n\n### Objective Pre -> Post Movement\n\n" + "\n".join(mov_rows)
 
     premise_intro = (
         "Technical writing produced or revised by Large Language Models often "
@@ -139,22 +174,24 @@ def generate_formal_writeup(run_dir: Path) -> Path:
 
     method_intro = (
         "- **Blind LLM Judge:** Candidate revisions were anonymized, randomized "
-        "(`Candidate 1, 2, 3`), and evaluated by an independent judge model "
+        "(`Candidate 1, 2, ...`), and evaluated by an independent judge model "
         "instance with no awareness of arm assignment.\n"
         "- **Multi-Dimensional Criteria:** Candidates were evaluated across "
         "Directness, Rhythm, Voice Authenticity, Density, Technical Integrity, "
         "and Overall Quality.\n"
-        "- **Held-Out Telemetry:** Tool execution, token cost, latency, and "
-        "compression ratios were independently logged."
+        "- **Held-Out Telemetry & Movement:** Pre-rewrite baselines and post-rewrite "
+        "readability / pattern scores were independently measured across all arms."
     )
 
-    model_name = manifest.get("model", "default")
+    model_name = manifest.get("primary_model", manifest.get("model", "default"))
     run_id = manifest.get("run_id", "unknown")
     timestamp_str = manifest.get("timestamp", "")
     doc_count = manifest.get("document_count", 0)
 
-    dim_table = "\n".join(dim_rows)
     doc_table = "\n".join(doc_sections)
+
+    win_rate_strs = [f"  - {arm}: **{rate:.1%}**" for arm, rate in win_rates.items()]
+    win_rate_block = "\n".join(win_rate_strs)
 
     report_content = f"""# Empirical Evaluation Report: Formal Stats vs Text Guidance
 
@@ -173,10 +210,8 @@ def generate_formal_writeup(run_dir: Path) -> Path:
 
 ### Key Aggregate Metrics:
 - **Win Rates:**
-  - Arm C (Stats-Augmented): **{win_rates.get("stats_augmented", 0.0):.1%}**
-  - Arm B (Text-Only): **{win_rates.get("text_only", 0.0):.1%}**
-  - Arm A (Control): **{win_rates.get("control", 0.0):.1%}**
-- **Overall Quality Delta (C - B):** **{delta_cb:+.2f} / 10**
+{win_rate_block}
+- **Overall Quality Delta (Stats vs Reference):** **{delta_cb:+.2f} / 10**
 
 ---
 
@@ -186,8 +221,9 @@ def generate_formal_writeup(run_dir: Path) -> Path:
 
 ### Experimental Conditions:
 1. **Arm A (Control):** Standard LLM polish without specific constraints.
-2. **Arm B (Text-Only):** LLM guided by `technical-post-editorial` rules.
-3. **Arm C (Stats-Augmented):** Guided by rules + docstats MCP (`analyze_document`).
+2. **Arm B1 (Text-Only Rewriter 1):** Guided by `technical-post-editorial` rules.
+3. **Arm B2 (Text-Only Rewriter 2):** Alternate rewriter with editorial rules.
+4. **Arm C (Stats-Augmented):** Guided by rules + live docstats MCP feedback.
 
 ---
 
@@ -201,9 +237,8 @@ def generate_formal_writeup(run_dir: Path) -> Path:
 
 ### Dimension Performance (1–10 Scale)
 
-| Dimension | Control (A) | Text-Only (B) | Stats-Augmented (C) | Delta (C - B) |
-|---|---|---|---|---|
 {dim_table}
+{mov_table}
 
 ---
 
@@ -225,7 +260,7 @@ uv sync --group dev --group eval
 export GEMINI_API_KEY="<your-key>"
 
 # 3. Execute experiment across corpus
-uv run python eval/run_experiment.py --model {model_name}
+uv run python eval/run_experiment.py --primary-model {model_name}
 
 # 4. Evaluate with blind judge and generate report
 uv run python eval/judge.py --run-dir {run_dir}

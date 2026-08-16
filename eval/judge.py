@@ -33,7 +33,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-from eval.llm_client import GeminiLLMClient
+from eval.llm_client import get_llm_client
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -92,31 +92,37 @@ def compute_held_out_metrics(source_text: str, revised_text: str) -> Dict[str, A
 
 
 def evaluate_document_blind(
-    client: GeminiLLMClient,
+    client,
     doc_dir: Path,
     seed: int = 42,
 ) -> Dict[str, Any]:
     """Blinds, randomizes, and evaluates candidate revisions for a document."""
     source_file = doc_dir / "source.md"
     meta_file = doc_dir / "meta.yaml"
-    arm_a_file = doc_dir / "arm_a.md"
-    arm_b_file = doc_dir / "arm_b.md"
-    arm_c_file = doc_dir / "arm_c.md"
 
-    if not all(
-        p.exists() for p in [source_file, meta_file, arm_a_file, arm_b_file, arm_c_file]
-    ):
-        raise FileNotFoundError(f"Missing required experiment files in {doc_dir}")
+    if not source_file.exists() or not meta_file.exists():
+        raise FileNotFoundError(f"Missing source or meta in {doc_dir}")
 
     source_text = source_file.read_text(encoding="utf-8")
     with open(meta_file, "r", encoding="utf-8") as f:
         meta = yaml.safe_load(f)
 
-    arms = {
-        "control": arm_a_file.read_text(encoding="utf-8"),
-        "text_only": arm_b_file.read_text(encoding="utf-8"),
-        "stats_augmented": arm_c_file.read_text(encoding="utf-8"),
-    }
+    # Discover present arm files
+    arms: Dict[str, str] = {}
+    for arm_candidate in [
+        ("control", "arm_a.md"),
+        ("text_only", "arm_b.md"),
+        ("text_only_rewriter1", "arm_b1.md"),
+        ("text_only_rewriter2", "arm_b2.md"),
+        ("stats_augmented", "arm_c.md"),
+    ]:
+        key, filename = arm_candidate
+        p = doc_dir / filename
+        if p.exists():
+            arms[key] = p.read_text(encoding="utf-8")
+
+    if not arms:
+        raise FileNotFoundError(f"No arm output files found in {doc_dir}")
 
     # Deterministic randomization keyed on seed + doc name
     rng = random.Random(f"{seed}_{doc_dir.name}")
@@ -198,7 +204,7 @@ def evaluate_run(run_dir: Path, model: Optional[str] = None) -> List[Dict[str, A
     if not manifest_file.exists():
         raise FileNotFoundError(f"Manifest not found in {run_dir}")
 
-    client = GeminiLLMClient(model=model or "gemini-3.7-flash")
+    client = get_llm_client(model=model or "gemini-3.7-flash")
     results = []
 
     for item in sorted(run_dir.iterdir()):
