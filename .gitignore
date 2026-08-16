@@ -11,3 +11,22 @@ wheels/
 
 others/
 .gemini
+.dolt/
+*.db
+.beads/dolt-server*
+.beads/last-touched
+.beads/dolt/
+.beads/*.lock
+.beads/*.pid
+.beads/*.log
+.beads/*.port
+.beads.*
+.serena/
+
+.pytest_cache/
+.ruff_cache/
+
+# Beads / Dolt files (added by bd init)
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*

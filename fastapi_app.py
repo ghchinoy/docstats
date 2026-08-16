@@ -22,7 +22,8 @@ from models import ReadabilityScoresModel, TextSourceModel
 
 logger = logging.getLogger(__name__)
 
-fastapi_app = FastAPI(title="Readability API", version="1.4.0")
+fastapi_app = FastAPI(title="Readability API", version="0.2.0")
+
 
 @fastapi_app.post("/scores/", response_model=ReadabilityScoresModel)
 async def scores_fastapi(req: TextSourceModel):

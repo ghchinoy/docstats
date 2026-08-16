@@ -13,7 +13,12 @@
 # limitations under the License.
 
 import logging
+import ssl
+from typing import Optional
 
+import anyio
+import certifi
+import nltk
 import textstat
 from readability import Readability
 
@@ -21,10 +26,34 @@ from models import ReadabilityScoresModel
 
 logger = logging.getLogger(__name__)
 
-async def calculate_readability_metrics_logic(
-    text: str, src_desc: str
-) -> ReadabilityScoresModel:
-    """Calculates all readability metrics for the given text."""
+
+def ensure_nltk_resources() -> None:
+    """Ensures necessary NLTK tokenizer resources are downloaded and available."""
+    for resource, path in [
+        ("punkt_tab", "tokenizers/punkt_tab"),
+        ("punkt", "tokenizers/punkt"),
+    ]:
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            try:
+                ssl_context = ssl.create_default_context(cafile=certifi.where())
+                nltk.download(resource, quiet=True, ssl_context=ssl_context)
+            except Exception:
+                try:
+                    nltk.download(resource, quiet=True)
+                except Exception as exc:
+                    logger.warning(
+                        "Could not automatically download NLTK resource "
+                        f"'{resource}': {exc}"
+                    )
+
+
+ensure_nltk_resources()
+
+
+def _sync_calculate_metrics(text: str, src_desc: str) -> ReadabilityScoresModel:
+    """Synchronous CPU-bound calculation of all readability metrics."""
     if not text.strip():
         raise ValueError("Empty text.")
 
@@ -34,7 +63,7 @@ async def calculate_readability_metrics_logic(
     if wc < 100:
         logger.warning(f"{src_desc} <100 words.")
 
-    spache_score = None
+    spache_score: Optional[float] = None
     if wc > 0:
         try:
             spache_score = Readability(text).spache().score
@@ -64,5 +93,12 @@ async def calculate_readability_metrics_logic(
         linsear_write_formula=textstat.linsear_write_formula(text),
         dale_chall_readability_score=textstat.dale_chall_readability_score(text),
         text_standard=str(textstat.text_standard(text, float_output=True)),
-        spache=spache_score
+        spache=spache_score,
     )
+
+
+async def calculate_readability_metrics_logic(
+    text: str, src_desc: str
+) -> ReadabilityScoresModel:
+    """Calculates all readability metrics asynchronously without event loop block."""
+    return await anyio.to_thread.run_sync(_sync_calculate_metrics, text, src_desc)

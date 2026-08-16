@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+
+import pypdf
 import pytest
 from fastapi.testclient import TestClient
-import pypdf
-import io
-from fastapi_app import fastapi_app  # Import your FastAPI application instance
-from mcp_server import execute_readability_tool
+
+from fastapi_app import fastapi_app
 
 client = TestClient(fastapi_app)
 
@@ -209,8 +210,7 @@ def check_error_detail(detail: list | str, expected_message: str):
             found = True
             break
     assert found, (
-        f"Expected message '{expected_message}' not found in "
-        f"error details: {detail}"
+        f"Expected message '{expected_message}' not found in error details: {detail}"
     )
 
 

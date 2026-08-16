@@ -1,18 +1,19 @@
 import json
-import subprocess
 import select
-import time
-import sys
+import subprocess
+
+import pytest
+
 
 def test_mcp_stdio():
-    print("Starting MCP server process...")
+    """Verifies that the MCP server runs correctly over STDIO transport."""
     process = subprocess.Popen(
         ["uv", "run", "python", "main.py", "--server-type", "mcp"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        bufsize=1
+        bufsize=1,
     )
 
     def read_line_with_timeout(stream, timeout=5):
@@ -20,12 +21,10 @@ def test_mcp_stdio():
         rlist, _, _ = select.select([stream], [], [], timeout)
         if rlist:
             return stream.readline()
-        else:
-            return None
+        return None
 
     try:
         # 1. Initialization
-        print("Sending 'initialize' request...")
         init_request = {
             "jsonrpc": "2.0",
             "id": 1,
@@ -33,79 +32,68 @@ def test_mcp_stdio():
             "params": {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
-                "clientInfo": {"name": "test-client", "version": "1.0"}
-            }
+                "clientInfo": {"name": "test-client", "version": "1.0"},
+            },
         }
         process.stdin.write(json.dumps(init_request) + "\n")
-        
-        line = read_line_with_timeout(process.stdout)
-        if line:
-            print(f"Init Response: {line.strip()}")
-        else:
-            print("Timeout waiting for Init Response")
-            return
+        process.stdin.flush()
 
-        # MCP Protocol: Must send 'notifications/initialized' after receiving 'initialize' response
-        print("Sending 'notifications/initialized' notification...")
+        line = read_line_with_timeout(process.stdout)
+        if not line:
+            pytest.fail("Timeout waiting for MCP initialize response")
+        init_response = json.loads(line)
+        assert "result" in init_response
+
+        # MCP Protocol: Must send 'notifications/initialized'
         initialized_notification = {
             "jsonrpc": "2.0",
-            "method": "notifications/initialized"
+            "method": "notifications/initialized",
         }
         process.stdin.write(json.dumps(initialized_notification) + "\n")
+        process.stdin.flush()
 
         # 2. List Tools
-        print("Sending 'tools/list' request...")
         list_tools_request = {
             "jsonrpc": "2.0",
             "id": 2,
             "method": "tools/list",
-            "params": {}
+            "params": {},
         }
         process.stdin.write(json.dumps(list_tools_request) + "\n")
-        
+        process.stdin.flush()
+
         line = read_line_with_timeout(process.stdout)
-        if line:
-            print(f"List Tools Response: {line.strip()}")
-            assert "get_readability_scores" in line
-        else:
-            print("Timeout waiting for List Tools Response")
-            return
+        if not line:
+            pytest.fail("Timeout waiting for tools/list response")
+        assert "get_readability_scores" in line
 
         # 3. Call Tool
-        print("Sending 'tools/call' request...")
         call_tool_request = {
             "jsonrpc": "2.0",
             "id": 3,
             "method": "tools/call",
             "params": {
                 "name": "get_readability_scores",
-                "arguments": {"text": "This is a simple test sentence for readability."}
-            }
+                "arguments": {
+                    "text": "This is a simple test sentence for readability."
+                },
+            },
         }
         process.stdin.write(json.dumps(call_tool_request) + "\n")
-        
+        process.stdin.flush()
+
         line = read_line_with_timeout(process.stdout)
-        if line:
-            print(f"Call Tool Response: {line.strip()}")
-            assert "flesch_reading_ease" in line
-        else:
-            print("Timeout waiting for Call Tool Response")
-            return
+        if not line:
+            pytest.fail("Timeout waiting for tools/call response")
+        assert "flesch_reading_ease" in line
 
-        print("\nAll tests passed successfully!")
-
-    except Exception as e:
-        print(f"Test failed with error: {e}")
     finally:
-        print("Terminating server process...")
         process.terminate()
         try:
-            stdout, stderr = process.communicate(timeout=2)
-            if stderr:
-                print(f"\nServer Stderr logs:\n{stderr}")
+            process.communicate(timeout=2)
         except subprocess.TimeoutExpired:
             process.kill()
-            print("Process killed after timeout.")
+
 
 if __name__ == "__main__":
     test_mcp_stdio()

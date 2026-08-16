@@ -45,8 +45,10 @@ class TextSourceModel(BaseModel):
             raise ValueError("gcs_pdf_uri must be a valid gs:// URI.")
         return values
 
+
 class ReadabilityScoresModel(BaseModel):
     """Model for the comprehensive set of readability scores and text statistics."""
+
     flesch_reading_ease: Optional[float] = None
     flesch_kincaid_grade: Optional[float] = None
     gunning_fog: Optional[float] = None

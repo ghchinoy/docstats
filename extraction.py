@@ -28,136 +28,90 @@ logger = logging.getLogger(__name__)
 # Shared GCS client
 _storage_client = None
 
+
 def get_storage_client():
     """Returns a shared Google Cloud Storage client instance."""
     global _storage_client
-
     if _storage_client is None:
-
         _storage_client = storage.Client()
-
     return _storage_client
-
-
-
 
 
 async def extract_text_from_gcs_pdf(gcs_uri: str) -> str:
     """Extracts text from a PDF file stored in Google Cloud Storage."""
     try:
-
         storage_client = get_storage_client()
-
-        bucket_name, blob_name = gcs_uri.replace("gs://", "").split("/", 1)
+        clean_path = gcs_uri.replace("gs://", "", 1)
+        if "/" not in clean_path:
+            raise ValueError(
+                f"Invalid GCS PDF URI: '{gcs_uri}'. Expected format: gs://bucket/path/to/file.pdf"
+            )
+        bucket_name, blob_name = clean_path.split("/", 1)
+        if not blob_name:
+            raise ValueError(
+                f"Invalid GCS PDF URI: '{gcs_uri}'. Blob name cannot be empty."
+            )
 
         blob = storage_client.bucket(bucket_name).blob(blob_name)
 
         # download_as_bytes is blocking, run in thread
-
         pdf_bytes = await asyncio.to_thread(blob.download_as_bytes)
-
         reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-
         text = "".join(page.extract_text() or "" for page in reader.pages)
 
         if not text.strip():
-
             raise ValueError("No text in PDF.")
 
         return text
-
     except Exception as e:
-
         raise ValueError(f"GCS PDF error ({gcs_uri}): {e}") from e
-
-
-
 
 
 async def get_processed_text(source: TextSourceModel) -> tuple[str, str]:
     """Processes the input source and returns the extracted text and a description."""
     if source.text:
-
         return source.text, "direct text"
 
-
-
     if source.web_url:
-
         try:
-
             async with httpx.AsyncClient(follow_redirects=True) as client:
-
                 response = await client.get(
-
                     source.web_url,
-
                     headers={"User-Agent": "Mozilla/5.0"},
-
                     timeout=15.0,
-
                 )
-
                 response.raise_for_status()
-
-
 
             content_type = response.headers.get("Content-Type", "").lower()
 
-
-
             if "application/pdf" in content_type or source.web_url.lower().endswith(
-
                 ".pdf"
-
             ):
-
                 # Handle PDF from URL
-
                 reader = pypdf.PdfReader(io.BytesIO(response.content))
-
                 text = "".join(page.extract_text() or "" for page in reader.pages)
 
                 if not text.strip():
-
                     raise ValueError("No text in web PDF.")
 
                 return text, f"Web PDF: {source.web_url}"
 
-
-
             # Handle HTML
-
             soup = BeautifulSoup(response.content, "html.parser")
-
             # Try to find the main content
-
             article = soup.find("article") or soup.find("main")
-
             target = article or soup.body
-
             text = target.get_text(separator=" ", strip=True) if target else ""
 
-
-
             if not text.strip():
-
                 raise ValueError("No text from URL.")
 
             return text, f"URL: {source.web_url}"
-
         except Exception as e:
-
             raise ValueError(f"Web URL error ({source.web_url}): {e}") from e
 
-
-
     if source.gcs_pdf_uri:
-
         text = await extract_text_from_gcs_pdf(source.gcs_pdf_uri)
-
         return text, f"GCS: {source.gcs_pdf_uri}"
-
-
 
     raise ValueError("Invalid source.")

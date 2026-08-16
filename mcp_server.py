@@ -35,6 +35,7 @@ from models import TextSourceModel
 
 logger = logging.getLogger(__name__)
 
+
 def get_readability_tool_schema() -> mcp_sdk_types.Tool:
     """Returns the MCP tool schema for readability scores."""
     return mcp_sdk_types.Tool(
@@ -92,7 +93,10 @@ async def call_tool_generic(
     name: str, args_dict: dict
 ) -> list[mcp_sdk_types.TextContent]:
     """Calls a specific tool for the generic MCP server."""
-    ctx = mcp_generic_app.request_context
+    try:
+        ctx = mcp_generic_app.request_context
+    except LookupError:
+        ctx = None
     if name == "get_readability_scores":
         return await execute_readability_tool(args_dict, ctx)
     raise NotImplementedError(f"Tool {name} not found.")
@@ -112,30 +116,32 @@ class InMemoryEventStore(EventStore):
     """In-memory store for MCP HTTP events."""
 
     def __init__(self, max_events_per_stream: int = 100):
-        """Initializes the in-memory event store."""
-        self.max_events_per_stream = max_events_per_stream
+        """Initializes the in-memory event store with a max event limit."""
+        self.max_events = max_events_per_stream
         self.streams: dict[StreamId, deque[EventEntry]] = {}
-        self.event_index: dict[EventId, EventEntry] = {}
+        self.event_map: dict[EventId, EventEntry] = {}
 
-    async def store_event(self, stream_id: StreamId, msg: JSONRPCMessage) -> EventId:
-        """Stores an event in the specified stream."""
+    async def store_event(
+        self, stream_id: StreamId, message: JSONRPCMessage
+    ) -> EventId:
+        """Stores an event message in the given stream."""
         eid = str(uuid4())
-        entry = EventEntry(eid, stream_id, msg)
+        entry = EventEntry(event_id=eid, stream_id=stream_id, message=message)
         if stream_id not in self.streams:
-            self.streams[stream_id] = deque(maxlen=self.max_events_per_stream)
-        if len(self.streams[stream_id]) == self.max_events_per_stream:
-            self.event_index.pop(self.streams[stream_id][0].event_id, None)
+            self.streams[stream_id] = deque(maxlen=self.max_events)
         self.streams[stream_id].append(entry)
-        self.event_index[eid] = entry
+        self.event_map[eid] = entry
         return eid
 
     async def replay_events_after(
-        self, last_eid: EventId, cb: EventCallback
+        self,
+        last_eid: EventId,
+        cb: EventCallback,
     ) -> StreamId | None:
-        """Replays events in a stream after a specified event ID."""
-        if last_eid not in self.event_index:
+        """Replays all events in a stream that occurred after last_eid."""
+        last_event = self.event_map.get(last_eid)
+        if not last_event:
             return None
-        last_event = self.event_index[last_eid]
         found = False
         for event in self.streams.get(last_event.stream_id, deque()):
             if found:
@@ -157,7 +163,10 @@ async def list_tools_http(*args) -> list[mcp_sdk_types.Tool]:
 @mcp_http_app.call_tool()
 async def call_tool_http(name: str, args_dict: dict) -> list[mcp_sdk_types.TextContent]:
     """Calls a specific tool for the HTTP MCP server."""
-    ctx = mcp_http_app.request_context
+    try:
+        ctx = mcp_http_app.request_context
+    except LookupError:
+        ctx = None
     if name == "get_readability_scores":
         return await execute_readability_tool(args_dict, ctx)
     raise NotImplementedError(f"Tool {name} not found.")

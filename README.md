@@ -35,7 +35,7 @@ The application can process text from three types of sources:
     # or for just dependencies if not installing the project itself:
     # uv pip install . 
     ```
-    Ensure your `pyproject.toml` lists all necessary dependencies like `fastapi`, `uvicorn[standard]`, `textstat`, `py-readability-metrics`, `google-cloud-storage`, `pypdf2`, `beautifulsoup4`, `mcp>=1.9.3`, `starlette`, `anyio`.
+    Ensure your `pyproject.toml` lists all necessary dependencies like `fastapi`, `uvicorn[standard]`, `textstat`, `py-readability-metrics`, `google-cloud-storage`, `pypdf`, `beautifulsoup4`, `mcp>=1.27.0`, `starlette`, `anyio`, `certifi`.
 
 4.  **Google Cloud Authentication (for GCS PDF processing):**
     Ensure you have Application Default Credentials (ADC) configured in your environment. This typically involves running:
