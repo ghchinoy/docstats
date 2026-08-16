@@ -1,0 +1,15 @@
+id: "sample-migration"
+title: "Engine Migration: Transitioning to Server Mode"
+doc_type: "migration_guide"
+provenance: "Realistic engineering draft containing synthetic AI writing tropes"
+target:
+  audience: "Distributed Systems Engineers"
+  band: "Dense"
+  expected_fk_grade_min: 10.0
+  expected_fk_grade_max: 14.0
+known_tells:
+  - em_dashes: true
+  - throat_clearing: true
+  - binary_contrasts: true
+  - high_adverb_density: true
+  - vague_declaratives: true
