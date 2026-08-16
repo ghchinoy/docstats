@@ -26,17 +26,28 @@ from typing import Any, Dict, Optional
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+from extraction import get_processed_text
+from metrics import (
+    analyze_document_logic,
+    calculate_ai_patterns_logic,
+    calculate_readability_metrics_logic,
+)
+from models import TextSourceModel
+
 logger = logging.getLogger(__name__)
 
 DOCSTATS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
 class DocstatsMCPClient:
-    """Manages an active MCP connection to the docstats STDIO server."""
+    """Manages access to the docstats engine (via in-process fastpath or STDIO MCP)."""
 
-    def __init__(self, server_root: str = DOCSTATS_ROOT):
+    def __init__(
+        self, server_root: str = DOCSTATS_ROOT, use_direct_fastpath: bool = True
+    ):
         """Initializes the MCP client with the repository root path."""
         self.server_root = server_root
+        self.use_direct_fastpath = use_direct_fastpath
         self.server_params = StdioServerParameters(
             command="uv",
             args=["run", "python", "main.py", "--server-type", "mcp"],
@@ -46,7 +57,22 @@ class DocstatsMCPClient:
     async def call_tool(
         self, tool_name: str, arguments: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Spawns an STDIO MCP session, calls tool, and parses JSON output."""
+        """Calls tool via in-process fastpath or STDIO MCP session."""
+        if self.use_direct_fastpath:
+            input_data = TextSourceModel(**arguments)
+            processed_text, source_desc = await get_processed_text(input_data)
+            if tool_name == "analyze_document":
+                res = await analyze_document_logic(processed_text, source_desc)
+                return res.model_dump()
+            elif tool_name == "get_readability_scores":
+                res = await calculate_readability_metrics_logic(
+                    processed_text, source_desc
+                )
+                return res.model_dump()
+            elif tool_name == "get_ai_pattern_scores":
+                res = await calculate_ai_patterns_logic(processed_text, source_desc)
+                return res.model_dump()
+
         async with stdio_client(self.server_params) as (read_stream, write_stream):
             async with ClientSession(read_stream, write_stream) as session:
                 await session.initialize()

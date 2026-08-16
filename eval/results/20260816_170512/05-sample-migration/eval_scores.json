@@ -1,0 +1,94 @@
+{
+  "document_id": "05-sample-migration",
+  "blinded_map": {
+    "Candidate 1": "text_only_rewriter2",
+    "Candidate 2": "control",
+    "Candidate 3": "stats_augmented",
+    "Candidate 4": "text_only_rewriter1"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 4",
+      "Candidate 3",
+      "Candidate 2",
+      "Candidate 1"
+    ],
+    "rationale": "Candidate 4 wins by achieving the best balance of directness, high information density, and strict technical accuracy. It successfully adopts an authentic engineering voice without hallucinating new metrics or architectural details, unlike Candidate 3."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 8.5,
+        "rhythm": 8.5,
+        "authenticity": 8.5,
+        "density": 8.5,
+        "technical_integrity": 9.5,
+        "overall_score": 8.6,
+        "critique": "A solid improvement over the original, but it still holds onto some of the initial fluff ('one of the most critical infrastructure updates'). Good technical accuracy."
+      },
+      "held_out_metrics": {
+        "word_count": 95,
+        "compression_ratio": 0.651,
+        "similarity_ratio": 0.359
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.0,
+        "authenticity": 9.5,
+        "density": 9.5,
+        "technical_integrity": 10.0,
+        "overall_score": 9.5,
+        "critique": "Excellent revision that strips away all conversational fluff and AI tropes while strictly preserving the original technical details. Highly direct, dense, and accurate."
+      },
+      "held_out_metrics": {
+        "word_count": 74,
+        "compression_ratio": 0.507,
+        "similarity_ratio": 0.306
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 8.0,
+        "rhythm": 7.5,
+        "authenticity": 8.0,
+        "density": 8.0,
+        "technical_integrity": 9.5,
+        "overall_score": 8.2,
+        "critique": "Removes the worst of the AI tropes but retains unnecessary narrative elements ('we lost a day discovering that'). The rhythm is slightly disjointed."
+      },
+      "held_out_metrics": {
+        "word_count": 85,
+        "compression_ratio": 0.582,
+        "similarity_ratio": 0.382
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.5,
+        "authenticity": 10.0,
+        "density": 9.5,
+        "technical_integrity": 6.0,
+        "overall_score": 8.8,
+        "critique": "Exceptional rhythm and authenticity, sounding exactly like a seasoned engineer. However, it introduces specific metrics (34%, 48-worker) and architectural details (Unix domain sockets) not present in the source text, severely impacting technical integrity."
+      },
+      "held_out_metrics": {
+        "word_count": 127,
+        "compression_ratio": 0.87,
+        "similarity_ratio": 0.143
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 1084,
+    "candidate_tokens": 581,
+    "total_tokens": 4467,
+    "latency_seconds": 28.28
+  }
+}

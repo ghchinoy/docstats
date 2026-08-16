@@ -24,16 +24,23 @@ Evaluates randomized, de-identified revisions across:
 """
 
 import argparse
+import concurrent.futures
 import difflib
 import json
 import logging
 import random
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
 
-from eval.llm_client import get_llm_client
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from eval.llm_client import get_llm_client  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -198,19 +205,38 @@ def evaluate_document_blind(
     return evaluation_record
 
 
-def evaluate_run(run_dir: Path, model: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Evaluates all document subdirectories within a results run directory."""
+def evaluate_run(
+    run_dir: Path, model: Optional[str] = None, workers: int = 5
+) -> List[Dict[str, Any]]:
+    """Evaluates all document subdirectories in parallel using a thread pool."""
     manifest_file = run_dir / "manifest.json"
     if not manifest_file.exists():
         raise FileNotFoundError(f"Manifest not found in {run_dir}")
 
-    client = get_llm_client(model=model or "gemini-3.7-flash")
-    results = []
+    client = get_llm_client(model=model or "gemini-3.1-pro-preview")
+    doc_dirs = [
+        item
+        for item in sorted(run_dir.iterdir())
+        if item.is_dir() and (item / "meta.yaml").exists()
+    ]
 
-    for item in sorted(run_dir.iterdir()):
-        if item.is_dir() and (item / "meta.yaml").exists():
-            res = evaluate_document_blind(client, item)
-            results.append(res)
+    logger.info(
+        f"Starting parallel blind judging of {len(doc_dirs)} documents "
+        f"using {client.model} ({workers} workers)..."
+    )
+
+    results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_dir = {
+            executor.submit(evaluate_document_blind, client, d): d for d in doc_dirs
+        }
+        for future in concurrent.futures.as_completed(future_to_dir):
+            d = future_to_dir[future]
+            try:
+                res = future.result()
+                results.append(res)
+            except Exception as exc:
+                logger.error(f"Judging failed for {d.name}: {exc}")
 
     logger.info(f"Evaluated {len(results)} document(s) in run {run_dir.name}.")
     return results
@@ -228,7 +254,7 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gemini-3.7-flash",
+        default="gemini-3.1-pro-preview",
         help="Model to use for Judge",
     )
 

@@ -1,0 +1,341 @@
+{
+  "document_id": "09-sqlite-wal-guide",
+  "pre_docstats": {
+    "readability": {
+      "flesch_reading_ease": 44.69166666666669,
+      "flesch_kincaid_grade": 10.858624338624338,
+      "gunning_fog": 12.467724867724868,
+      "smog_index": 12.416235457179464,
+      "automated_readability_index": 11.93237662337662,
+      "coleman_liau_index": 13.000000000000004,
+      "linsear_write_formula": 8.285714285714286,
+      "dale_chall_readability_score": 12.58916455026455,
+      "text_standard": "12.0",
+      "spache": 7.705229550691243,
+      "syllable_count": 374,
+      "word_count": 216,
+      "sentence_count": 14
+    },
+    "ai_patterns": {
+      "em_dash_count": 0,
+      "em_dash_rate": 0.0,
+      "adverb_ly_count": 3,
+      "adverb_ly_rate": 1.36,
+      "throat_clearing_count": 0,
+      "binary_contrast_count": 0,
+      "wh_starter_count": 0,
+      "wh_starter_rate": 0.0,
+      "fragment_count": 0,
+      "list_of_three_count": 0,
+      "sentence_len_cv": 0.681,
+      "vague_declarative_count": 0,
+      "passive_hint_count": 3,
+      "total_tells": 0,
+      "ai_tell_score": 10.0,
+      "confidence": "high",
+      "flags": []
+    }
+  },
+  "arms": {
+    "control": {
+      "arm": "control",
+      "usage": {
+        "prompt_tokens": 404,
+        "candidate_tokens": 292,
+        "total_tokens": 770,
+        "latency_seconds": 1.531
+      },
+      "model": "gemini-3.7-flash",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 39.02969780219783,
+          "flesch_kincaid_grade": 12.096071428571427,
+          "gunning_fog": 14.213736263736264,
+          "smog_index": 13.639024540459548,
+          "automated_readability_index": 13.379595141700406,
+          "coleman_liau_index": 13.73482142857143,
+          "linsear_write_formula": 11.0,
+          "dale_chall_readability_score": 13.302530082417583,
+          "text_standard": "14.0",
+          "spache": 8.113999999999999,
+          "syllable_count": 398,
+          "word_count": 224,
+          "sentence_count": 13
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 3,
+          "adverb_ly_rate": 1.32,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.539,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 2,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 0.0,
+        "delta_fk_grade": 1.24,
+        "delta_total_tells": 0,
+        "pre_ai_tell_score": 10.0,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 10.858624338624338,
+        "post_fk_grade": 12.096071428571427
+      }
+    },
+    "text_only_rewriter1": {
+      "arm": "text_only_rewriter1",
+      "usage": {
+        "prompt_tokens": 928,
+        "candidate_tokens": 227,
+        "total_tokens": 1844,
+        "latency_seconds": 3.272
+      },
+      "model": "gemini-3.7-flash",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 43.405951374207206,
+          "flesch_kincaid_grade": 11.08957716701903,
+          "gunning_fog": 12.766173361522199,
+          "smog_index": 12.719339214003902,
+          "automated_readability_index": 12.614318181818184,
+          "coleman_liau_index": 13.701162790697676,
+          "linsear_write_formula": 8.714285714285714,
+          "dale_chall_readability_score": 13.684098520084566,
+          "text_standard": "13.0",
+          "spache": 8.084170742552246,
+          "syllable_count": 300,
+          "word_count": 172,
+          "sentence_count": 11
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 4,
+          "adverb_ly_rate": 2.27,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.499,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 9.38,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": -0.62,
+        "delta_fk_grade": 0.23,
+        "delta_total_tells": 0,
+        "pre_ai_tell_score": 10.0,
+        "post_ai_tell_score": 9.38,
+        "pre_fk_grade": 10.858624338624338,
+        "post_fk_grade": 11.08957716701903
+      }
+    },
+    "text_only_rewriter2": {
+      "arm": "text_only_rewriter2",
+      "usage": {
+        "prompt_tokens": 928,
+        "candidate_tokens": 215,
+        "total_tokens": 3394,
+        "latency_seconds": 13.827
+      },
+      "model": "gemini-3.1-pro-preview",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 41.40501054852322,
+          "flesch_kincaid_grade": 10.755126582278482,
+          "gunning_fog": 12.608438818565402,
+          "smog_index": 12.457975602129121,
+          "automated_readability_index": 11.529333333333334,
+          "coleman_liau_index": 14.072151898734177,
+          "linsear_write_formula": 6.888888888888889,
+          "dale_chall_readability_score": 13.783554008438818,
+          "text_standard": "12.0",
+          "spache": 8.22423113207547,
+          "syllable_count": 284,
+          "word_count": 158,
+          "sentence_count": 12
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 0,
+          "adverb_ly_rate": 0.0,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 1.016,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 0.0,
+        "delta_fk_grade": -0.1,
+        "delta_total_tells": 0,
+        "pre_ai_tell_score": 10.0,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 10.858624338624338,
+        "post_fk_grade": 10.755126582278482
+      }
+    },
+    "stats_augmented": {
+      "arm": "stats_augmented",
+      "usage": {
+        "prompt_tokens": 1485,
+        "candidate_tokens": 293,
+        "total_tokens": 2450,
+        "latency_seconds": 3.75
+      },
+      "model": "gemini-3.7-flash",
+      "mcp_telemetry": [
+        {
+          "step": "initial_analysis",
+          "output": {
+            "readability": {
+              "flesch_reading_ease": 44.69166666666669,
+              "flesch_kincaid_grade": 10.858624338624338,
+              "gunning_fog": 12.467724867724868,
+              "smog_index": 12.416235457179464,
+              "automated_readability_index": 11.93237662337662,
+              "coleman_liau_index": 13.000000000000004,
+              "linsear_write_formula": 8.285714285714286,
+              "dale_chall_readability_score": 12.58916455026455,
+              "text_standard": "12.0",
+              "spache": 7.705229550691243,
+              "syllable_count": 374,
+              "word_count": 216,
+              "sentence_count": 14
+            },
+            "ai_patterns": {
+              "em_dash_count": 0,
+              "em_dash_rate": 0.0,
+              "adverb_ly_count": 3,
+              "adverb_ly_rate": 1.36,
+              "throat_clearing_count": 0,
+              "binary_contrast_count": 0,
+              "wh_starter_count": 0,
+              "wh_starter_rate": 0.0,
+              "fragment_count": 0,
+              "list_of_three_count": 0,
+              "sentence_len_cv": 0.681,
+              "vague_declarative_count": 0,
+              "passive_hint_count": 3,
+              "total_tells": 0,
+              "ai_tell_score": 10.0,
+              "confidence": "high",
+              "flags": []
+            }
+          }
+        },
+        {
+          "step": "candidate_analysis",
+          "output": {
+            "readability": {
+              "flesch_reading_ease": 40.93494186046513,
+              "flesch_kincaid_grade": 11.364867109634552,
+              "gunning_fog": 13.21262458471761,
+              "smog_index": 12.905362322585251,
+              "automated_readability_index": 13.927886497064577,
+              "coleman_liau_index": 15.346046511627907,
+              "linsear_write_formula": 11.333333333333334,
+              "dale_chall_readability_score": 13.945656146179402,
+              "text_standard": "13.0",
+              "spache": 8.497856278801843,
+              "syllable_count": 382,
+              "word_count": 215,
+              "sentence_count": 14
+            },
+            "ai_patterns": {
+              "em_dash_count": 0,
+              "em_dash_rate": 0.0,
+              "adverb_ly_count": 3,
+              "adverb_ly_rate": 1.37,
+              "throat_clearing_count": 0,
+              "binary_contrast_count": 0,
+              "wh_starter_count": 0,
+              "wh_starter_rate": 0.0,
+              "fragment_count": 0,
+              "list_of_three_count": 0,
+              "sentence_len_cv": 0.452,
+              "vague_declarative_count": 0,
+              "passive_hint_count": 0,
+              "total_tells": 0,
+              "ai_tell_score": 10.0,
+              "confidence": "high",
+              "flags": []
+            }
+          }
+        }
+      ],
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 40.93494186046513,
+          "flesch_kincaid_grade": 11.364867109634552,
+          "gunning_fog": 13.21262458471761,
+          "smog_index": 12.905362322585251,
+          "automated_readability_index": 13.927886497064577,
+          "coleman_liau_index": 15.346046511627907,
+          "linsear_write_formula": 11.333333333333334,
+          "dale_chall_readability_score": 13.945656146179402,
+          "text_standard": "13.0",
+          "spache": 8.497856278801843,
+          "syllable_count": 382,
+          "word_count": 215,
+          "sentence_count": 14
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 3,
+          "adverb_ly_rate": 1.37,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.452,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 0.0,
+        "delta_fk_grade": 0.51,
+        "delta_total_tells": 0,
+        "pre_ai_tell_score": 10.0,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 10.858624338624338,
+        "post_fk_grade": 11.364867109634552
+      }
+    }
+  }
+}

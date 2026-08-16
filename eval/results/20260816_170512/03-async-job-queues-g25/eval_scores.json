@@ -1,0 +1,94 @@
+{
+  "document_id": "03-async-job-queues-g25",
+  "blinded_map": {
+    "Candidate 1": "text_only_rewriter2",
+    "Candidate 2": "control",
+    "Candidate 3": "stats_augmented",
+    "Candidate 4": "text_only_rewriter1"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 3",
+      "Candidate 4",
+      "Candidate 2",
+      "Candidate 1"
+    ],
+    "rationale": "Candidate 3 wins by perfectly capturing the voice of a senior systems architect. It replaces generic descriptions with concrete technical primitives (e.g., `delivery_mode=2`, `SET key NX EX 86400`, `basic.nack(requeue=false)`), drastically increasing information density and authenticity without adding fluff. Candidate 4 is a strong runner-up, offering excellent readability and directness."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 6.5,
+        "rhythm": 7.5,
+        "authenticity": 7.0,
+        "density": 6.5,
+        "technical_integrity": 8.0,
+        "overall_score": 7.1,
+        "critique": "Retains AI-like throat-clearing ('This RFC proposes') and wordy phrasing. While technically accurate, it lacks the concise punch and density expected in elite engineering docs."
+      },
+      "held_out_metrics": {
+        "word_count": 332,
+        "compression_ratio": 1.018,
+        "similarity_ratio": 0.246
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 9.0,
+        "rhythm": 8.5,
+        "authenticity": 9.0,
+        "density": 8.5,
+        "technical_integrity": 9.0,
+        "overall_score": 8.8,
+        "critique": "Strong, direct, and highly readable. Good use of technical specifics and context framing, though slightly less rigorous and detailed than Candidate 3."
+      },
+      "held_out_metrics": {
+        "word_count": 242,
+        "compression_ratio": 0.742,
+        "similarity_ratio": 0.114
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 8.0,
+        "rhythm": 6.0,
+        "authenticity": 6.5,
+        "density": 7.5,
+        "technical_integrity": 8.0,
+        "overall_score": 7.0,
+        "critique": "Successfully removes fluff but suffers from a choppy, metronomic rhythm. The tone is overly simplistic for a senior engineering audience."
+      },
+      "held_out_metrics": {
+        "word_count": 235,
+        "compression_ratio": 0.721,
+        "similarity_ratio": 0.394
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.5,
+        "authenticity": 10.0,
+        "density": 9.5,
+        "technical_integrity": 10.0,
+        "overall_score": 9.7,
+        "critique": "Exceptional revision. Translates generic concepts into precise engineering primitives (e.g., `SET NX`, `basic.nack(requeue=false)`, `delivery_mode=2`). Highly authentic, dense, and authoritative."
+      },
+      "held_out_metrics": {
+        "word_count": 267,
+        "compression_ratio": 0.819,
+        "similarity_ratio": 0.091
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 2496,
+    "candidate_tokens": 626,
+    "total_tokens": 4951,
+    "latency_seconds": 20.478
+  }
+}

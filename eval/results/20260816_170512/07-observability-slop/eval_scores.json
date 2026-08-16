@@ -1,0 +1,94 @@
+{
+  "document_id": "07-observability-slop",
+  "blinded_map": {
+    "Candidate 1": "text_only_rewriter1",
+    "Candidate 2": "stats_augmented",
+    "Candidate 3": "text_only_rewriter2",
+    "Candidate 4": "control"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 1",
+      "Candidate 2",
+      "Candidate 3",
+      "Candidate 4"
+    ],
+    "rationale": "Candidate 1 wins by perfectly capturing the tone of an internal engineering RFC. It eliminates the original's fluff, gets straight to the point, and translates vague requirements into concrete, actionable technical specifications without losing the original intent."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 6.5,
+        "rhythm": 7.0,
+        "authenticity": 6.5,
+        "density": 6.5,
+        "technical_integrity": 8.5,
+        "overall_score": 7.0,
+        "critique": "Retains the throat-clearing fluff of the original ('Observability is critical...') and relies on standard AI-generated document structures and transitions."
+      },
+      "held_out_metrics": {
+        "word_count": 134,
+        "compression_ratio": 1.081,
+        "similarity_ratio": 0.077
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.0,
+        "authenticity": 9.5,
+        "density": 9.5,
+        "technical_integrity": 9.0,
+        "overall_score": 9.3,
+        "critique": "Excellent transformation. Strips the fluff and replaces it with concrete, actionable engineering specifications. The tone is highly authentic and direct."
+      },
+      "held_out_metrics": {
+        "word_count": 136,
+        "compression_ratio": 1.097,
+        "similarity_ratio": 0.106
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 8.5,
+        "rhythm": 7.0,
+        "authenticity": 7.5,
+        "density": 8.0,
+        "technical_integrity": 8.0,
+        "overall_score": 7.8,
+        "critique": "Removes the fluff but is too brief. It reads more like a quick summary than a formal engineering RFC."
+      },
+      "held_out_metrics": {
+        "word_count": 76,
+        "compression_ratio": 0.613,
+        "similarity_ratio": 0.146
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 8.5,
+        "rhythm": 8.0,
+        "authenticity": 9.0,
+        "density": 8.5,
+        "technical_integrity": 8.5,
+        "overall_score": 8.5,
+        "critique": "Strong technical vocabulary and professional tone, but slightly overly formal and wordy. Contradicts the original's 'central collector' by specifying a 'regional' daemon set."
+      },
+      "held_out_metrics": {
+        "word_count": 154,
+        "compression_ratio": 1.242,
+        "similarity_ratio": 0.104
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 1270,
+    "candidate_tokens": 558,
+    "total_tokens": 3921,
+    "latency_seconds": 21.789
+  }
+}

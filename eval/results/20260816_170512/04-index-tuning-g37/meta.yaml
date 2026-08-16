@@ -1,0 +1,25 @@
+doc_type: tutorial
+generation_prompt: Write a 250-word technical tutorial on selecting appropriate PostgreSQL
+  index types (BRIN vs GIN vs B-Tree) for high-volume event logging tables.
+generator_model: gemini-3.7-flash
+generator_provider: gemini
+id: 04-index-tuning-g37
+known_tells:
+  binary_contrasts: true
+  em_dashes: true
+  fragments: true
+  high_adverb_density: false
+  metronomic_rhythm: false
+  throat_clearing: true
+  vague_declaratives: true
+  wh_starters: true
+license: Apache-2.0
+provenance: Generated via gemini-3.7-flash from realistic technical developer brief
+source_tier: generated_ai
+source_url: null
+target:
+  audience: Full-Stack & Database Developers
+  band: Accessible
+  expected_fk_grade_max: 12.0
+  expected_fk_grade_min: 8.0
+title: 'PostgreSQL Index Tuning: When B-Trees Aren''t Enough (gemini-3.7-flash)'

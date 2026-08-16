@@ -1,0 +1,94 @@
+{
+  "document_id": "01-rest-to-grpc-g25",
+  "blinded_map": {
+    "Candidate 1": "control",
+    "Candidate 2": "text_only_rewriter2",
+    "Candidate 3": "stats_augmented",
+    "Candidate 4": "text_only_rewriter1"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 3",
+      "Candidate 4",
+      "Candidate 2",
+      "Candidate 1"
+    ],
+    "rationale": "Candidate 3 wins by a wide margin because it reads exactly like a real internal engineering wiki. By injecting practical, real-world implementation details (schema registries, keepalives, explicit error handling), it respects the target audience's expertise and provides actionable technical guidance."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 6.0,
+        "rhythm": 6.5,
+        "authenticity": 6.0,
+        "density": 6.0,
+        "technical_integrity": 8.0,
+        "overall_score": 6.5,
+        "critique": "Retains much of the original's fluff and AI-like cadence. The explanations of basic concepts (like defining what Protobuf is) are unnecessary for the target audience of backend infrastructure engineers."
+      },
+      "held_out_metrics": {
+        "word_count": 314,
+        "compression_ratio": 1.05,
+        "similarity_ratio": 0.383
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 9.0,
+        "rhythm": 8.5,
+        "authenticity": 9.0,
+        "density": 9.0,
+        "technical_integrity": 9.0,
+        "overall_score": 8.9,
+        "critique": "A strong, concise revision that effectively prunes the fluff from the original. It introduces good technical specifics (long-lived channels, specific status codes) but lacks the immersive, real-world engineering context found in the top candidate."
+      },
+      "held_out_metrics": {
+        "word_count": 222,
+        "compression_ratio": 0.742,
+        "similarity_ratio": 0.103
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 7.0,
+        "rhythm": 6.5,
+        "authenticity": 6.5,
+        "density": 7.0,
+        "technical_integrity": 8.0,
+        "overall_score": 7.0,
+        "critique": "A moderate improvement over the original that trims some excess wordiness, but it retains too much of the generic, introductory tone rather than speaking directly to experienced engineers."
+      },
+      "held_out_metrics": {
+        "word_count": 241,
+        "compression_ratio": 0.806,
+        "similarity_ratio": 0.579
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.5,
+        "authenticity": 10.0,
+        "density": 9.5,
+        "technical_integrity": 10.0,
+        "overall_score": 9.7,
+        "critique": "Exceptional revision. It transforms a generic draft into a highly authentic internal engineering document. The addition of realistic details like a central schema registry, keepalive parameters, service discovery, and specific gRPC status codes elevates the technical integrity and usefulness of the guide."
+      },
+      "held_out_metrics": {
+        "word_count": 267,
+        "compression_ratio": 0.893,
+        "similarity_ratio": 0.055
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 2647,
+    "candidate_tokens": 626,
+    "total_tokens": 4610,
+    "latency_seconds": 12.271
+  }
+}

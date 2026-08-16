@@ -1,0 +1,94 @@
+{
+  "document_id": "02-distributed-caching-g25",
+  "blinded_map": {
+    "Candidate 1": "control",
+    "Candidate 2": "text_only_rewriter1",
+    "Candidate 3": "text_only_rewriter2",
+    "Candidate 4": "stats_augmented"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 2",
+      "Candidate 1",
+      "Candidate 4",
+      "Candidate 3"
+    ],
+    "rationale": "Candidate 2 wins by delivering a highly authentic, dense, and precise engineering narrative. It elevates the vocabulary with accurate terminology ('mutations', 'hot write path') without hallucinating facts, whereas Candidate 4 invents architectural details and Candidate 1 relies on generic AI tropes."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 7.5,
+        "rhythm": 7.5,
+        "authenticity": 7.0,
+        "density": 7.5,
+        "technical_integrity": 9.0,
+        "overall_score": 7.5,
+        "critique": "Safe but generic. Relies heavily on AI-sounding transitions ('To solve this...', 'The primary engineering challenge...') and marketing fluff ('resilient, high-performance caching layer')."
+      },
+      "held_out_metrics": {
+        "word_count": 249,
+        "compression_ratio": 0.996,
+        "similarity_ratio": 0.236
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.5,
+        "authenticity": 9.5,
+        "density": 9.5,
+        "technical_integrity": 9.5,
+        "overall_score": 9.5,
+        "critique": "Exceptional revision. Prunes fluff, uses precise engineering terminology ('mutations', 'hot write path', 'reconverge'), and maintains a highly authentic, authoritative tone without hallucinating facts."
+      },
+      "held_out_metrics": {
+        "word_count": 205,
+        "compression_ratio": 0.82,
+        "similarity_ratio": 0.163
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 8.0,
+        "rhythm": 3.0,
+        "authenticity": 4.0,
+        "density": 7.0,
+        "technical_integrity": 8.5,
+        "overall_score": 5.5,
+        "critique": "Extremely choppy and metronomic. The repetitive 'We [verb]' sentence structure destroys the rhythm and makes it read like a machine-generated summary rather than an engineering blog."
+      },
+      "held_out_metrics": {
+        "word_count": 156,
+        "compression_ratio": 0.624,
+        "similarity_ratio": 0.224
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 8.5,
+        "rhythm": 8.5,
+        "authenticity": 8.5,
+        "density": 8.5,
+        "technical_integrity": 5.0,
+        "overall_score": 7.0,
+        "critique": "Strong narrative flow and good density, but severely penalized for hallucinating architectural specifics not present in the source text (e.g., 'three regions', 'Geo-DNS', 'NTP service')."
+      },
+      "held_out_metrics": {
+        "word_count": 198,
+        "compression_ratio": 0.792,
+        "similarity_ratio": 0.136
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 1877,
+    "candidate_tokens": 611,
+    "total_tokens": 4775,
+    "latency_seconds": 22.641
+  }
+}

@@ -25,14 +25,20 @@ import argparse
 import asyncio
 import json
 import logging
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
 
-from eval.llm_client import UsageStats, get_llm_client
-from eval.mcp_client import DocstatsMCPClient
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from eval.llm_client import UsageStats, get_llm_client  # noqa: E402
+from eval.mcp_client import DocstatsMCPClient  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -180,6 +186,13 @@ async def run_arm_c(
     )
 
     candidate_text = resp1.text.strip()
+    if not candidate_text:
+        logger.warning(
+            f"[{doc['id']}] Arm C: First pass returned empty text; "
+            "falling back to source."
+        )
+        candidate_text = doc["source_text"].strip()
+
     tool_telemetry = [{"step": "initial_analysis", "output": initial_analysis}]
 
     total_prompt_tokens = resp1.usage.prompt_tokens
@@ -220,7 +233,10 @@ async def run_arm_c(
             temperature=0.2,
         )
 
-        final_revised_text = resp2.text.strip()
+        refined_candidate = resp2.text.strip()
+        if refined_candidate:
+            final_revised_text = refined_candidate
+
         total_prompt_tokens += resp2.usage.prompt_tokens
         total_candidate_tokens += resp2.usage.candidate_tokens
         total_tokens += resp2.usage.total_tokens
@@ -274,48 +290,18 @@ def compute_docstats_movement(
     }
 
 
-async def run_experiment(
-    corpus_path: Path = CORPUS_DIR,
-    output_base_dir: Path = RESULTS_DIR,
-    primary_model: str = "gemini-3.7-flash",
-    secondary_model: str = "gemini-2.5-flash",
-    target_doc: Optional[str] = None,
-) -> Path:
-    """Executes the full experiment across all documents and arms."""
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    run_dir = output_base_dir / timestamp
-    run_dir.mkdir(parents=True, exist_ok=True)
-
-    client_primary = get_llm_client(model=primary_model)
-    client_secondary = get_llm_client(model=secondary_model)
-    mcp_client = DocstatsMCPClient()
-
-    documents = load_corpus_documents(corpus_path)
-    if target_doc:
-        documents = [d for d in documents if d["id"] == target_doc]
-
-    if not documents:
-        logger.warning(
-            f"No documents in corpus {corpus_path}. Creating placeholder run."
-        )
-
-    logger.info(
-        f"Starting 4-arm experiment {timestamp} on {len(documents)} document(s) "
-        f"[Primary: {primary_model}, Secondary: {secondary_model}]..."
-    )
-
-    manifest = {
-        "run_id": timestamp,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "primary_model": primary_model,
-        "secondary_model": secondary_model,
-        "document_count": len(documents),
-        "documents": [],
-    }
-
-    for doc in documents:
-        doc_id = doc["id"]
-        logger.info(f"Processing document '{doc_id}'...")
+async def process_single_document(
+    doc: Dict[str, Any],
+    run_dir: Path,
+    client_primary,
+    client_secondary,
+    mcp_client: DocstatsMCPClient,
+    semaphore: asyncio.Semaphore,
+) -> str:
+    """Processes all 4 arms for a single document under concurrency control."""
+    doc_id = doc["id"]
+    async with semaphore:
+        logger.info(f"[{doc_id}] Starting 4-arm processing...")
         doc_out_dir = run_dir / doc_id
         doc_out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -332,7 +318,6 @@ async def run_experiment(
         )
 
         # Arm A: Control
-        logger.info(f"[{doc_id}] Executing Arm A (Control)...")
         res_a = await run_arm_a(client_primary, doc)
         (doc_out_dir / "arm_a.md").write_text(res_a["revised_text"], encoding="utf-8")
         post_a = await mcp_client.analyze_document(text=res_a["revised_text"])
@@ -340,7 +325,6 @@ async def run_experiment(
         res_a["movement"] = compute_docstats_movement(pre_docstats, post_a)
 
         # Arm B1: Text-Only Rewriter 1
-        logger.info(f"[{doc_id}] Executing Arm B1 (Text-Only Rewriter 1)...")
         res_b1 = await run_arm_b1(client_primary, doc)
         (doc_out_dir / "arm_b1.md").write_text(res_b1["revised_text"], encoding="utf-8")
         post_b1 = await mcp_client.analyze_document(text=res_b1["revised_text"])
@@ -348,7 +332,6 @@ async def run_experiment(
         res_b1["movement"] = compute_docstats_movement(pre_docstats, post_b1)
 
         # Arm B2: Text-Only Rewriter 2
-        logger.info(f"[{doc_id}] Executing Arm B2 (Text-Only Rewriter 2)...")
         res_b2 = await run_arm_b2(client_secondary, doc)
         (doc_out_dir / "arm_b2.md").write_text(res_b2["revised_text"], encoding="utf-8")
         post_b2 = await mcp_client.analyze_document(text=res_b2["revised_text"])
@@ -356,7 +339,6 @@ async def run_experiment(
         res_b2["movement"] = compute_docstats_movement(pre_docstats, post_b2)
 
         # Arm C: Stats-Augmented
-        logger.info(f"[{doc_id}] Executing Arm C (Stats-Augmented)...")
         res_c = await run_arm_c(client_primary, mcp_client, doc)
         (doc_out_dir / "arm_c.md").write_text(res_c["revised_text"], encoding="utf-8")
         post_c = await mcp_client.analyze_document(text=res_c["revised_text"])
@@ -383,7 +365,65 @@ async def run_experiment(
         (doc_out_dir / "telemetry.json").write_text(
             json.dumps(telemetry, indent=2), encoding="utf-8"
         )
-        manifest["documents"].append(doc_id)
+        logger.info(f"[{doc_id}] Completed all 4 arms.")
+        return doc_id
+
+
+async def run_experiment(
+    corpus_path: Path = CORPUS_DIR,
+    output_base_dir: Path = RESULTS_DIR,
+    primary_model: str = "gemini-3.7-flash",
+    secondary_model: str = "gemini-3.1-pro-preview",
+    target_doc: Optional[str] = None,
+    concurrency: int = 4,
+) -> Path:
+    """Executes the full experiment across all documents and arms concurrently."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    run_dir = output_base_dir / timestamp
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    client_primary = get_llm_client(model=primary_model)
+    client_secondary = get_llm_client(model=secondary_model)
+    mcp_client = DocstatsMCPClient()
+
+    documents = load_corpus_documents(corpus_path)
+    if target_doc:
+        documents = [d for d in documents if d["id"] == target_doc]
+
+    if not documents:
+        logger.warning(
+            f"No documents in corpus {corpus_path}. Creating placeholder run."
+        )
+
+    logger.info(
+        f"Starting concurrent 4-arm experiment {timestamp} on {len(documents)} "
+        f"doc(s) [Primary: {primary_model}, Secondary: {secondary_model}, "
+        f"Workers: {concurrency}]..."
+    )
+
+    semaphore = asyncio.Semaphore(concurrency)
+    tasks = [
+        process_single_document(
+            doc=doc,
+            run_dir=run_dir,
+            client_primary=client_primary,
+            client_secondary=client_secondary,
+            mcp_client=mcp_client,
+            semaphore=semaphore,
+        )
+        for doc in documents
+    ]
+
+    completed_doc_ids = await asyncio.gather(*tasks)
+
+    manifest = {
+        "run_id": timestamp,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "primary_model": primary_model,
+        "secondary_model": secondary_model,
+        "document_count": len(completed_doc_ids),
+        "documents": completed_doc_ids,
+    }
 
     (run_dir / "manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
@@ -418,7 +458,7 @@ def main():
     parser.add_argument(
         "--secondary-model",
         type=str,
-        default="gemini-2.5-flash",
+        default="gemini-3.1-pro-preview",
         help="Secondary model ID (Arm B2)",
     )
     parser.add_argument(

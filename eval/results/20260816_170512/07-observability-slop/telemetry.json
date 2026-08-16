@@ -1,0 +1,349 @@
+{
+  "document_id": "07-observability-slop",
+  "pre_docstats": {
+    "readability": {
+      "flesch_reading_ease": 23.216904315196984,
+      "flesch_kincaid_grade": 12.371544715447161,
+      "gunning_fog": 13.865916197623514,
+      "smog_index": 12.502718667466524,
+      "automated_readability_index": 13.801817617866007,
+      "coleman_liau_index": 17.946341463414637,
+      "linsear_write_formula": 7.1,
+      "dale_chall_readability_score": 12.706849218261414,
+      "text_standard": "13.0",
+      "spache": 7.251769454123114,
+      "syllable_count": 253,
+      "word_count": 123,
+      "sentence_count": 13
+    },
+    "ai_patterns": {
+      "em_dash_count": 0,
+      "em_dash_rate": 0.0,
+      "adverb_ly_count": 0,
+      "adverb_ly_rate": 0.0,
+      "throat_clearing_count": 0,
+      "binary_contrast_count": 0,
+      "wh_starter_count": 3,
+      "wh_starter_rate": 21.43,
+      "fragment_count": 1,
+      "list_of_three_count": 0,
+      "sentence_len_cv": 0.55,
+      "vague_declarative_count": 5,
+      "passive_hint_count": 1,
+      "total_tells": 6,
+      "ai_tell_score": 7.28,
+      "confidence": "high",
+      "flags": [
+        "Elevated Wh- declarative starter rate: 21.43% of sentences.",
+        "Found 1 staccato fragment(s) for manufactured emphasis.",
+        "Found 5 vague declarative or significance-announcing phrase(s)."
+      ]
+    }
+  },
+  "arms": {
+    "control": {
+      "arm": "control",
+      "usage": {
+        "prompt_tokens": 288,
+        "candidate_tokens": 183,
+        "total_tokens": 1007,
+        "latency_seconds": 2.618
+      },
+      "model": "gemini-3.7-flash",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": -0.297075381679349,
+          "flesch_kincaid_grade": 17.368769083969465,
+          "gunning_fog": 21.817175572519087,
+          "smog_index": 17.553077303434723,
+          "automated_readability_index": 19.446305970149254,
+          "coleman_liau_index": 21.796946564885506,
+          "linsear_write_formula": 14.833333333333334,
+          "dale_chall_readability_score": 15.1762572519084,
+          "text_standard": "22.0",
+          "spache": 8.889593939393938,
+          "syllable_count": 295,
+          "word_count": 131,
+          "sentence_count": 8
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 1,
+          "adverb_ly_rate": 0.75,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.73,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 1,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 2.72,
+        "delta_fk_grade": 5.0,
+        "delta_total_tells": -6,
+        "pre_ai_tell_score": 7.28,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 12.371544715447161,
+        "post_fk_grade": 17.368769083969465
+      }
+    },
+    "text_only_rewriter1": {
+      "arm": "text_only_rewriter1",
+      "usage": {
+        "prompt_tokens": 812,
+        "candidate_tokens": 208,
+        "total_tokens": 1686,
+        "latency_seconds": 3.845
+      },
+      "model": "gemini-3.7-flash",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 14.32031716417913,
+          "flesch_kincaid_grade": 15.423097014925379,
+          "gunning_fog": 16.849253731343282,
+          "smog_index": 15.414825405933506,
+          "automated_readability_index": 18.702867647058817,
+          "coleman_liau_index": 19.7,
+          "linsear_write_formula": 11.142857142857142,
+          "dale_chall_readability_score": 14.719016417910447,
+          "text_standard": "15.0",
+          "spache": 8.977019607843136,
+          "syllable_count": 278,
+          "word_count": 134,
+          "sentence_count": 8
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 2,
+          "adverb_ly_rate": 1.47,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.305,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 2.72,
+        "delta_fk_grade": 3.05,
+        "delta_total_tells": -6,
+        "pre_ai_tell_score": 7.28,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 12.371544715447161,
+        "post_fk_grade": 15.423097014925379
+      }
+    },
+    "text_only_rewriter2": {
+      "arm": "text_only_rewriter2",
+      "usage": {
+        "prompt_tokens": 812,
+        "candidate_tokens": 102,
+        "total_tokens": 2612,
+        "latency_seconds": 14.547
+      },
+      "model": "gemini-3.1-pro-preview",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 20.755000000000024,
+          "flesch_kincaid_grade": 13.345555555555556,
+          "gunning_fog": 15.911111111111111,
+          "smog_index": 13.5591,
+          "automated_readability_index": 15.37092105263158,
+          "coleman_liau_index": 20.48055555555555,
+          "linsear_write_formula": 8.333333333333334,
+          "dale_chall_readability_score": 14.758366666666669,
+          "text_standard": "15.0",
+          "spache": null,
+          "syllable_count": 148,
+          "word_count": 72,
+          "sentence_count": 6
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 0,
+          "adverb_ly_rate": 0.0,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.509,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "low",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 2.72,
+        "delta_fk_grade": 0.97,
+        "delta_total_tells": -6,
+        "pre_ai_tell_score": 7.28,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 12.371544715447161,
+        "post_fk_grade": 13.345555555555556
+      }
+    },
+    "stats_augmented": {
+      "arm": "stats_augmented",
+      "usage": {
+        "prompt_tokens": 1424,
+        "candidate_tokens": 217,
+        "total_tokens": 2754,
+        "latency_seconds": 5.944
+      },
+      "model": "gemini-3.7-flash",
+      "mcp_telemetry": [
+        {
+          "step": "initial_analysis",
+          "output": {
+            "readability": {
+              "flesch_reading_ease": 23.216904315196984,
+              "flesch_kincaid_grade": 12.371544715447161,
+              "gunning_fog": 13.865916197623514,
+              "smog_index": 12.502718667466524,
+              "automated_readability_index": 13.801817617866007,
+              "coleman_liau_index": 17.946341463414637,
+              "linsear_write_formula": 7.1,
+              "dale_chall_readability_score": 12.706849218261414,
+              "text_standard": "13.0",
+              "spache": 7.251769454123114,
+              "syllable_count": 253,
+              "word_count": 123,
+              "sentence_count": 13
+            },
+            "ai_patterns": {
+              "em_dash_count": 0,
+              "em_dash_rate": 0.0,
+              "adverb_ly_count": 0,
+              "adverb_ly_rate": 0.0,
+              "throat_clearing_count": 0,
+              "binary_contrast_count": 0,
+              "wh_starter_count": 3,
+              "wh_starter_rate": 21.43,
+              "fragment_count": 1,
+              "list_of_three_count": 0,
+              "sentence_len_cv": 0.55,
+              "vague_declarative_count": 5,
+              "passive_hint_count": 1,
+              "total_tells": 6,
+              "ai_tell_score": 7.28,
+              "confidence": "high",
+              "flags": [
+                "Elevated Wh- declarative starter rate: 21.43% of sentences.",
+                "Found 1 staccato fragment(s) for manufactured emphasis.",
+                "Found 5 vague declarative or significance-announcing phrase(s)."
+              ]
+            }
+          }
+        },
+        {
+          "step": "candidate_analysis",
+          "output": {
+            "readability": {
+              "flesch_reading_ease": -4.989801324503304,
+              "flesch_kincaid_grade": 19.314247871333965,
+              "gunning_fog": 22.403405865657522,
+              "smog_index": 18.848423458724294,
+              "automated_readability_index": 23.518506493506493,
+              "coleman_liau_index": 23.9271523178808,
+              "linsear_write_formula": 17.0,
+              "dale_chall_readability_score": 16.209091863765373,
+              "text_standard": "19.0",
+              "spache": 9.545357894736842,
+              "syllable_count": 339,
+              "word_count": 151,
+              "sentence_count": 7
+            },
+            "ai_patterns": {
+              "em_dash_count": 0,
+              "em_dash_rate": 0.0,
+              "adverb_ly_count": 0,
+              "adverb_ly_rate": 0.0,
+              "throat_clearing_count": 0,
+              "binary_contrast_count": 0,
+              "wh_starter_count": 0,
+              "wh_starter_rate": 0.0,
+              "fragment_count": 0,
+              "list_of_three_count": 0,
+              "sentence_len_cv": 0.333,
+              "vague_declarative_count": 0,
+              "passive_hint_count": 0,
+              "total_tells": 0,
+              "ai_tell_score": 10.0,
+              "confidence": "high",
+              "flags": []
+            }
+          }
+        }
+      ],
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": -4.989801324503304,
+          "flesch_kincaid_grade": 19.314247871333965,
+          "gunning_fog": 22.403405865657522,
+          "smog_index": 18.848423458724294,
+          "automated_readability_index": 23.518506493506493,
+          "coleman_liau_index": 23.9271523178808,
+          "linsear_write_formula": 17.0,
+          "dale_chall_readability_score": 16.209091863765373,
+          "text_standard": "19.0",
+          "spache": 9.545357894736842,
+          "syllable_count": 339,
+          "word_count": 151,
+          "sentence_count": 7
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 0,
+          "adverb_ly_rate": 0.0,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.333,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "high",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 2.72,
+        "delta_fk_grade": 6.94,
+        "delta_total_tells": -6,
+        "pre_ai_tell_score": 7.28,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 12.371544715447161,
+        "post_fk_grade": 19.314247871333965
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "document_id": "02-distributed-caching-g37",
+  "blinded_map": {
+    "Candidate 1": "control",
+    "Candidate 2": "text_only_rewriter1",
+    "Candidate 3": "text_only_rewriter2",
+    "Candidate 4": "stats_augmented"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 2",
+      "Candidate 1",
+      "Candidate 3",
+      "Candidate 4"
+    ],
+    "rationale": "Candidate 2 is the clear winner. It demonstrates superior engineering writing by front-loading the problem metric (160ms latency), stripping away marketing fluff, and enhancing technical precision (e.g., specifying 'monotonic' logical counters and 'out-of-order' writes). The formatting improvements also make it much easier to scan."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 7.5,
+        "rhythm": 7.5,
+        "authenticity": 8.0,
+        "density": 7.5,
+        "technical_integrity": 9.0,
+        "overall_score": 7.8,
+        "critique": "Makes only minor vocabulary tweaks to the original draft. It retains the marketing-like fluff in the introduction and doesn't significantly improve information density."
+      },
+      "held_out_metrics": {
+        "word_count": 271,
+        "compression_ratio": 1.034,
+        "similarity_ratio": 0.921
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.0,
+        "authenticity": 9.5,
+        "density": 9.5,
+        "technical_integrity": 9.5,
+        "overall_score": 9.4,
+        "critique": "Excellent revision. It moves the latency metric to the first sentence to immediately establish the problem, removes narrative fluff, and increases technical precision with terms like 'monotonic logical counters' and 'out-of-order writes'. The bulleted results section is highly readable."
+      },
+      "held_out_metrics": {
+        "word_count": 256,
+        "compression_ratio": 0.977,
+        "similarity_ratio": 0.551
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 8.0,
+        "rhythm": 6.0,
+        "authenticity": 7.5,
+        "density": 8.0,
+        "technical_integrity": 9.0,
+        "overall_score": 7.5,
+        "critique": "Removes some fluff but suffers from metronomic, choppy pacing, particularly in the Results section where three consecutive sentences share the exact same subject-verb structure."
+      },
+      "held_out_metrics": {
+        "word_count": 251,
+        "compression_ratio": 0.958,
+        "similarity_ratio": 0.618
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 7.0,
+        "rhythm": 7.5,
+        "authenticity": 8.0,
+        "density": 7.0,
+        "technical_integrity": 9.0,
+        "overall_score": 7.4,
+        "critique": "This is the original draft. It contains unnecessary narrative fluff ('As our global user base expanded', 'comfortably absorbed') and misses opportunities for tighter technical precision."
+      },
+      "held_out_metrics": {
+        "word_count": 262,
+        "compression_ratio": 1.0,
+        "similarity_ratio": 1.0
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 2526,
+    "candidate_tokens": 615,
+    "total_tokens": 4827,
+    "latency_seconds": 14.36
+  }
+}

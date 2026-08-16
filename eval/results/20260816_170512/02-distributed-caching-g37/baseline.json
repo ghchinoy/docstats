@@ -1,0 +1,36 @@
+{
+  "readability": {
+    "flesch_reading_ease": 16.507432915921328,
+    "flesch_kincaid_grade": 15.887209302325584,
+    "gunning_fog": 19.10125223613596,
+    "smog_index": 16.573440645216312,
+    "automated_readability_index": 19.018191426893715,
+    "coleman_liau_index": 18.565116279069773,
+    "linsear_write_formula": 15.8,
+    "dale_chall_readability_score": 15.51474519976148,
+    "text_standard": "16.0",
+    "spache": 9.131732319391636,
+    "syllable_count": 519,
+    "word_count": 258,
+    "sentence_count": 13
+  },
+  "ai_patterns": {
+    "em_dash_count": 0,
+    "em_dash_rate": 0.0,
+    "adverb_ly_count": 4,
+    "adverb_ly_rate": 1.53,
+    "throat_clearing_count": 0,
+    "binary_contrast_count": 0,
+    "wh_starter_count": 0,
+    "wh_starter_rate": 0.0,
+    "fragment_count": 0,
+    "list_of_three_count": 1,
+    "sentence_len_cv": 0.382,
+    "vague_declarative_count": 0,
+    "passive_hint_count": 0,
+    "total_tells": 0,
+    "ai_tell_score": 9.98,
+    "confidence": "high",
+    "flags": []
+  }
+}

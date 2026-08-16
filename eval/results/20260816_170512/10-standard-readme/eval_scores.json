@@ -1,0 +1,94 @@
+{
+  "document_id": "10-standard-readme",
+  "blinded_map": {
+    "Candidate 1": "stats_augmented",
+    "Candidate 2": "text_only_rewriter2",
+    "Candidate 3": "control",
+    "Candidate 4": "text_only_rewriter1"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 4",
+      "Candidate 1",
+      "Candidate 2",
+      "Candidate 3"
+    ],
+    "rationale": "Candidate 4 wins by significantly improving the technical precision of the text (using terms like 'exported functions', 'code examples', and 'codebases') while simultaneously increasing information density. It strips away throat-clearing transitions in favor of direct, actionable statements that resonate with an engineering audience."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 7.0,
+        "rhythm": 7.5,
+        "authenticity": 7.5,
+        "density": 7.0,
+        "technical_integrity": 8.5,
+        "overall_score": 7.2,
+        "critique": "Adds unnecessary fluff ('structured specification', 'concise, one-line', 'navigational aid') which decreases information density and makes the text feel slightly bloated compared to the original."
+      },
+      "held_out_metrics": {
+        "word_count": 162,
+        "compression_ratio": 0.964,
+        "similarity_ratio": 0.715
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.0,
+        "authenticity": 9.5,
+        "density": 9.5,
+        "technical_integrity": 9.5,
+        "overall_score": 9.4,
+        "critique": "Excellent revision that improves technical precision (e.g., 'exported functions' instead of 'exposed') and prunes wordy transitions. The phrasing is direct, dense, and highly authentic to developer workflows."
+      },
+      "held_out_metrics": {
+        "word_count": 145,
+        "compression_ratio": 0.863,
+        "similarity_ratio": 0.353
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 7.5,
+        "rhythm": 7.0,
+        "authenticity": 7.5,
+        "density": 7.5,
+        "technical_integrity": 8.5,
+        "overall_score": 7.5,
+        "critique": "Introduces some clunky phrasing ('demonstrating package imports and tool execution') and wordy additions ('alongside local development setup instructions') that reduce readability and natural rhythm."
+      },
+      "held_out_metrics": {
+        "word_count": 144,
+        "compression_ratio": 0.857,
+        "similarity_ratio": 0.396
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 8.5,
+        "rhythm": 8.5,
+        "authenticity": 8.5,
+        "density": 8.5,
+        "technical_integrity": 9.0,
+        "overall_score": 8.5,
+        "critique": "A solid, safe revision that tightens the original text slightly. It improves the 'Contributing' section by mentioning local tests, but retains some of the original's slightly wordy phrasing."
+      },
+      "held_out_metrics": {
+        "word_count": 157,
+        "compression_ratio": 0.935,
+        "similarity_ratio": 0.608
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 1518,
+    "candidate_tokens": 611,
+    "total_tokens": 3469,
+    "latency_seconds": 12.176
+  }
+}

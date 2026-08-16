@@ -1,0 +1,27 @@
+doc_type: migration_guide
+generation_prompt: Write a 250-word developer migration guide about transitioning
+  internal service communication from JSON REST over HTTP/1.1 to Protobuf gRPC over
+  HTTP/2. Explain why we made the switch, the latency payoffs, and how to update client
+  stubs.
+generator_model: gemini-3.7-flash
+generator_provider: gemini
+id: 01-rest-to-grpc-g37
+known_tells:
+  binary_contrasts: true
+  em_dashes: true
+  fragments: true
+  high_adverb_density: false
+  metronomic_rhythm: false
+  throat_clearing: true
+  vague_declaratives: true
+  wh_starters: true
+license: Apache-2.0
+provenance: Generated via gemini-3.7-flash from realistic technical developer brief
+source_tier: generated_ai
+source_url: null
+target:
+  audience: Backend Infrastructure Engineers
+  band: Dense
+  expected_fk_grade_max: 14.0
+  expected_fk_grade_min: 10.0
+title: Migrating Internal Services from REST to gRPC (gemini-3.7-flash)

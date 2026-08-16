@@ -157,7 +157,22 @@ class GeminiLLMClient:
             latency_seconds=round(latency, 3),
         )
 
-        response_text = response.text or ""
+        response_text = ""
+        if hasattr(response, "text") and response.text:
+            response_text = response.text
+        elif hasattr(response, "candidates") and response.candidates:
+            parts_text = []
+            for cand in response.candidates:
+                if (
+                    hasattr(cand, "content")
+                    and cand.content
+                    and hasattr(cand.content, "parts")
+                    and cand.content.parts
+                ):
+                    for part in cand.content.parts:
+                        if hasattr(part, "text") and part.text:
+                            parts_text.append(part.text)
+            response_text = "".join(parts_text)
 
         return LLMResponse(
             text=response_text,

@@ -1,0 +1,171 @@
+{
+  "document_count": 14,
+  "evaluated_arms": [
+    "control",
+    "stats_augmented",
+    "text_only_rewriter1",
+    "text_only_rewriter2"
+  ],
+  "win_counts": {
+    "control": 0,
+    "stats_augmented": 7,
+    "text_only_rewriter1": 7,
+    "text_only_rewriter2": 0
+  },
+  "win_rates": {
+    "control": 0.0,
+    "stats_augmented": 0.5,
+    "text_only_rewriter1": 0.5,
+    "text_only_rewriter2": 0.0
+  },
+  "dimensions": {
+    "overall_score": {
+      "control": {
+        "mean": 7.44,
+        "stdev": 0.71
+      },
+      "stats_augmented": {
+        "mean": 8.79,
+        "stdev": 0.81
+      },
+      "text_only_rewriter1": {
+        "mean": 8.99,
+        "stdev": 0.52
+      },
+      "text_only_rewriter2": {
+        "mean": 7.14,
+        "stdev": 0.73
+      },
+      "delta_C_minus_control": 1.35,
+      "delta_C_minus_text_only_rewriter1": -0.2,
+      "delta_C_minus_text_only_rewriter2": 1.65
+    },
+    "directness": {
+      "control": {
+        "mean": 7.11,
+        "stdev": 0.86
+      },
+      "stats_augmented": {
+        "mean": 8.82,
+        "stdev": 0.72
+      },
+      "text_only_rewriter1": {
+        "mean": 9.14,
+        "stdev": 0.36
+      },
+      "text_only_rewriter2": {
+        "mean": 8.0,
+        "stdev": 0.44
+      },
+      "delta_C_minus_control": 1.71,
+      "delta_C_minus_text_only_rewriter1": -0.32,
+      "delta_C_minus_text_only_rewriter2": 0.82
+    },
+    "rhythm": {
+      "control": {
+        "mean": 7.57,
+        "stdev": 0.58
+      },
+      "stats_augmented": {
+        "mean": 8.75,
+        "stdev": 0.58
+      },
+      "text_only_rewriter1": {
+        "mean": 8.71,
+        "stdev": 0.43
+      },
+      "text_only_rewriter2": {
+        "mean": 6.0,
+        "stdev": 1.39
+      },
+      "delta_C_minus_control": 1.18,
+      "delta_C_minus_text_only_rewriter1": 0.04,
+      "delta_C_minus_text_only_rewriter2": 2.75
+    },
+    "authenticity": {
+      "control": {
+        "mean": 7.29,
+        "stdev": 0.85
+      },
+      "stats_augmented": {
+        "mean": 9.18,
+        "stdev": 0.7
+      },
+      "text_only_rewriter1": {
+        "mean": 8.96,
+        "stdev": 0.63
+      },
+      "text_only_rewriter2": {
+        "mean": 6.89,
+        "stdev": 1.06
+      },
+      "delta_C_minus_control": 1.89,
+      "delta_C_minus_text_only_rewriter1": 0.22,
+      "delta_C_minus_text_only_rewriter2": 2.29
+    },
+    "density": {
+      "control": {
+        "mean": 7.18,
+        "stdev": 0.82
+      },
+      "stats_augmented": {
+        "mean": 8.82,
+        "stdev": 0.67
+      },
+      "text_only_rewriter1": {
+        "mean": 9.14,
+        "stdev": 0.41
+      },
+      "text_only_rewriter2": {
+        "mean": 7.75,
+        "stdev": 0.47
+      },
+      "delta_C_minus_control": 1.64,
+      "delta_C_minus_text_only_rewriter1": -0.32,
+      "delta_C_minus_text_only_rewriter2": 1.07
+    },
+    "technical_integrity": {
+      "control": {
+        "mean": 8.39,
+        "stdev": 0.71
+      },
+      "stats_augmented": {
+        "mean": 8.75,
+        "stdev": 1.54
+      },
+      "text_only_rewriter1": {
+        "mean": 9.0,
+        "stdev": 0.81
+      },
+      "text_only_rewriter2": {
+        "mean": 8.11,
+        "stdev": 0.86
+      },
+      "delta_C_minus_control": 0.36,
+      "delta_C_minus_text_only_rewriter1": -0.25,
+      "delta_C_minus_text_only_rewriter2": 0.64
+    }
+  },
+  "movement_by_arm": {
+    "control": {
+      "mean_delta_ai_score": 0.58,
+      "mean_delta_fk_grade": 1.45,
+      "mean_delta_tells": -2.21
+    },
+    "stats_augmented": {
+      "mean_delta_ai_score": 0.88,
+      "mean_delta_fk_grade": 1.56,
+      "mean_delta_tells": -2.43
+    },
+    "text_only_rewriter1": {
+      "mean_delta_ai_score": 0.91,
+      "mean_delta_fk_grade": 0.76,
+      "mean_delta_tells": -2.43
+    },
+    "text_only_rewriter2": {
+      "mean_delta_ai_score": 0.93,
+      "mean_delta_fk_grade": -0.19,
+      "mean_delta_tells": -2.43
+    }
+  }
+}

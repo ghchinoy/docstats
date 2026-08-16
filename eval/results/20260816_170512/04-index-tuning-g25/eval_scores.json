@@ -1,0 +1,94 @@
+{
+  "document_id": "04-index-tuning-g25",
+  "blinded_map": {
+    "Candidate 1": "text_only_rewriter1",
+    "Candidate 2": "control",
+    "Candidate 3": "text_only_rewriter2",
+    "Candidate 4": "stats_augmented"
+  },
+  "judge_summary": {
+    "rankings_blinded": [
+      "Candidate 4",
+      "Candidate 1",
+      "Candidate 3",
+      "Candidate 2"
+    ],
+    "rationale": "Candidate 4 wins by a wide margin because it understands the 'tutorial' format and the developer audience. By introducing concrete SQL examples, specific architectural details (like BRIN's 128-page default), and clear trade-offs, it sounds like an experienced database engineer. Candidate 1 is a solid runner-up for its concise, fluff-free prose, while Candidates 3 and 2 suffer from choppy rhythm and retained filler, respectively."
+  },
+  "scores_by_arm": {
+    "control": {
+      "blinded_label": "Candidate 2",
+      "judge_ratings": {
+        "directness": 6.0,
+        "rhythm": 7.0,
+        "authenticity": 6.5,
+        "density": 6.0,
+        "technical_integrity": 8.0,
+        "overall_score": 6.5,
+        "critique": "Retains too much of the original draft's fluff and throat-clearing. Reads more like a minor copyedit than a structural improvement."
+      },
+      "held_out_metrics": {
+        "word_count": 294,
+        "compression_ratio": 1.028,
+        "similarity_ratio": 0.415
+      }
+    },
+    "text_only_rewriter1": {
+      "blinded_label": "Candidate 1",
+      "judge_ratings": {
+        "directness": 9.0,
+        "rhythm": 8.5,
+        "authenticity": 8.5,
+        "density": 9.0,
+        "technical_integrity": 9.0,
+        "overall_score": 8.8,
+        "critique": "A strong, dense revision that removes fluff and adds good technical context regarding memory and maintenance costs, though it lacks code examples."
+      },
+      "held_out_metrics": {
+        "word_count": 204,
+        "compression_ratio": 0.713,
+        "similarity_ratio": 0.242
+      }
+    },
+    "text_only_rewriter2": {
+      "blinded_label": "Candidate 3",
+      "judge_ratings": {
+        "directness": 8.0,
+        "rhythm": 6.5,
+        "authenticity": 7.0,
+        "density": 7.5,
+        "technical_integrity": 8.0,
+        "overall_score": 7.2,
+        "critique": "Trims the fat effectively but results in a choppy, metronomic rhythm. Contains a minor pronoun agreement error ('B-Tree... Apply them')."
+      },
+      "held_out_metrics": {
+        "word_count": 176,
+        "compression_ratio": 0.615,
+        "similarity_ratio": 0.356
+      }
+    },
+    "stats_augmented": {
+      "blinded_label": "Candidate 4",
+      "judge_ratings": {
+        "directness": 9.5,
+        "rhythm": 9.0,
+        "authenticity": 9.5,
+        "density": 9.5,
+        "technical_integrity": 9.5,
+        "overall_score": 9.5,
+        "critique": "Exceptional rewrite that elevates the text into a true tutorial. Adds highly authentic details (128 disk pages, write latency trade-offs) and practical SQL snippets."
+      },
+      "held_out_metrics": {
+        "word_count": 298,
+        "compression_ratio": 1.042,
+        "similarity_ratio": 0.062
+      }
+    }
+  },
+  "judge_usage": {
+    "prompt_tokens": 2310,
+    "candidate_tokens": 614,
+    "total_tokens": 4121,
+    "latency_seconds": 12.46
+  }
+}

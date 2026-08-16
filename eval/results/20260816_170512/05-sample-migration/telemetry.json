@@ -1,0 +1,359 @@
+{
+  "document_id": "05-sample-migration",
+  "pre_docstats": {
+    "readability": {
+      "flesch_reading_ease": 36.863776223776256,
+      "flesch_kincaid_grade": 11.347132867132867,
+      "gunning_fog": 14.71048951048951,
+      "smog_index": 13.172668634160413,
+      "automated_readability_index": 12.684794520547946,
+      "coleman_liau_index": 15.222377622377625,
+      "linsear_write_formula": 12.166666666666666,
+      "dale_chall_readability_score": 11.568992307692309,
+      "text_standard": "12.0",
+      "spache": 7.287577586206897,
+      "syllable_count": 265,
+      "word_count": 143,
+      "sentence_count": 11
+    },
+    "ai_patterns": {
+      "em_dash_count": 2,
+      "em_dash_rate": 1.37,
+      "adverb_ly_count": 3,
+      "adverb_ly_rate": 2.05,
+      "throat_clearing_count": 5,
+      "binary_contrast_count": 2,
+      "wh_starter_count": 1,
+      "wh_starter_rate": 8.33,
+      "fragment_count": 1,
+      "list_of_three_count": 0,
+      "sentence_len_cv": 0.657,
+      "vague_declarative_count": 1,
+      "passive_hint_count": 0,
+      "total_tells": 12,
+      "ai_tell_score": 3.2,
+      "confidence": "high",
+      "flags": [
+        "Detected 1 high-offender adverb(s): simply",
+        "Found 5 throat-clearing opener(s) or announcement phrase(s).",
+        "Found 2 binary contrast frame(s) ('not X, it\\'s Y').",
+        "Found 1 staccato fragment(s) for manufactured emphasis.",
+        "Found 1 vague declarative or significance-announcing phrase(s).",
+        "Excessive em dash density in prose: 2 (1.37/100w)."
+      ]
+    }
+  },
+  "arms": {
+    "control": {
+      "arm": "control",
+      "usage": {
+        "prompt_tokens": 327,
+        "candidate_tokens": 126,
+        "total_tokens": 660,
+        "latency_seconds": 1.423
+      },
+      "model": "gemini-3.7-flash",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 26.23333333333335,
+          "flesch_kincaid_grade": 13.492340425531918,
+          "gunning_fog": 17.33049645390071,
+          "smog_index": 15.021129683784007,
+          "automated_readability_index": 15.208701754385963,
+          "coleman_liau_index": 17.110638297872345,
+          "linsear_write_formula": 12.166666666666666,
+          "dale_chall_readability_score": 12.980481560283689,
+          "text_standard": "13.0",
+          "spache": null,
+          "syllable_count": 183,
+          "word_count": 94,
+          "sentence_count": 6
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 1,
+          "adverb_ly_rate": 1.05,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.22,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "low",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 6.8,
+        "delta_fk_grade": 2.15,
+        "delta_total_tells": -12,
+        "pre_ai_tell_score": 3.2,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 11.347132867132867,
+        "post_fk_grade": 13.492340425531918
+      }
+    },
+    "text_only_rewriter1": {
+      "arm": "text_only_rewriter1",
+      "usage": {
+        "prompt_tokens": 851,
+        "candidate_tokens": 96,
+        "total_tokens": 1966,
+        "latency_seconds": 2.845
+      },
+      "model": "gemini-3.7-flash",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 15.634537671232863,
+          "flesch_kincaid_grade": 15.612431506849319,
+          "gunning_fog": 19.354794520547944,
+          "smog_index": 16.52667757954773,
+          "automated_readability_index": 17.928108108108113,
+          "coleman_liau_index": 19.284931506849322,
+          "linsear_write_formula": 14.625,
+          "dale_chall_readability_score": 13.626357534246576,
+          "text_standard": "19.0",
+          "spache": null,
+          "syllable_count": 149,
+          "word_count": 73,
+          "sentence_count": 4
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 0,
+          "adverb_ly_rate": 0.0,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.164,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 1,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "low",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 6.8,
+        "delta_fk_grade": 4.27,
+        "delta_total_tells": -12,
+        "pre_ai_tell_score": 3.2,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 11.347132867132867,
+        "post_fk_grade": 15.612431506849319
+      }
+    },
+    "text_only_rewriter2": {
+      "arm": "text_only_rewriter2",
+      "usage": {
+        "prompt_tokens": 851,
+        "candidate_tokens": 111,
+        "total_tokens": 6307,
+        "latency_seconds": 44.259
+      },
+      "model": "gemini-3.1-pro-preview",
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 23.370000000000005,
+          "flesch_kincaid_grade": 15.216666666666665,
+          "gunning_fog": 19.352380952380955,
+          "smog_index": 16.827784334635936,
+          "automated_readability_index": 17.274588235294118,
+          "coleman_liau_index": 16.900000000000002,
+          "linsear_write_formula": 16.25,
+          "dale_chall_readability_score": 12.38512380952381,
+          "text_standard": "17.0",
+          "spache": null,
+          "syllable_count": 161,
+          "word_count": 84,
+          "sentence_count": 4
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 0,
+          "adverb_ly_rate": 0.0,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.126,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 10.0,
+          "confidence": "low",
+          "flags": []
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 6.8,
+        "delta_fk_grade": 3.87,
+        "delta_total_tells": -12,
+        "pre_ai_tell_score": 3.2,
+        "post_ai_tell_score": 10.0,
+        "pre_fk_grade": 11.347132867132867,
+        "post_fk_grade": 15.216666666666665
+      }
+    },
+    "stats_augmented": {
+      "arm": "stats_augmented",
+      "usage": {
+        "prompt_tokens": 1523,
+        "candidate_tokens": 155,
+        "total_tokens": 3089,
+        "latency_seconds": 5.709
+      },
+      "model": "gemini-3.7-flash",
+      "mcp_telemetry": [
+        {
+          "step": "initial_analysis",
+          "output": {
+            "readability": {
+              "flesch_reading_ease": 36.863776223776256,
+              "flesch_kincaid_grade": 11.347132867132867,
+              "gunning_fog": 14.71048951048951,
+              "smog_index": 13.172668634160413,
+              "automated_readability_index": 12.684794520547946,
+              "coleman_liau_index": 15.222377622377625,
+              "linsear_write_formula": 12.166666666666666,
+              "dale_chall_readability_score": 11.568992307692309,
+              "text_standard": "12.0",
+              "spache": 7.287577586206897,
+              "syllable_count": 265,
+              "word_count": 143,
+              "sentence_count": 11
+            },
+            "ai_patterns": {
+              "em_dash_count": 2,
+              "em_dash_rate": 1.37,
+              "adverb_ly_count": 3,
+              "adverb_ly_rate": 2.05,
+              "throat_clearing_count": 5,
+              "binary_contrast_count": 2,
+              "wh_starter_count": 1,
+              "wh_starter_rate": 8.33,
+              "fragment_count": 1,
+              "list_of_three_count": 0,
+              "sentence_len_cv": 0.657,
+              "vague_declarative_count": 1,
+              "passive_hint_count": 0,
+              "total_tells": 12,
+              "ai_tell_score": 3.2,
+              "confidence": "high",
+              "flags": [
+                "Detected 1 high-offender adverb(s): simply",
+                "Found 5 throat-clearing opener(s) or announcement phrase(s).",
+                "Found 2 binary contrast frame(s) ('not X, it\\'s Y').",
+                "Found 1 staccato fragment(s) for manufactured emphasis.",
+                "Found 1 vague declarative or significance-announcing phrase(s).",
+                "Excessive em dash density in prose: 2 (1.37/100w)."
+              ]
+            }
+          }
+        },
+        {
+          "step": "candidate_analysis",
+          "output": {
+            "readability": {
+              "flesch_reading_ease": 2.891428571428605,
+              "flesch_kincaid_grade": 18.073015873015873,
+              "gunning_fog": 20.463492063492065,
+              "smog_index": 17.5058628484301,
+              "automated_readability_index": 19.851889763779532,
+              "coleman_liau_index": 20.306349206349207,
+              "linsear_write_formula": 16.8,
+              "dale_chall_readability_score": 14.202226984126986,
+              "text_standard": "20.0",
+              "spache": 9.714838582677165,
+              "syllable_count": 272,
+              "word_count": 126,
+              "sentence_count": 6
+            },
+            "ai_patterns": {
+              "em_dash_count": 0,
+              "em_dash_rate": 0.0,
+              "adverb_ly_count": 1,
+              "adverb_ly_rate": 0.79,
+              "throat_clearing_count": 0,
+              "binary_contrast_count": 0,
+              "wh_starter_count": 0,
+              "wh_starter_rate": 0.0,
+              "fragment_count": 0,
+              "list_of_three_count": 0,
+              "sentence_len_cv": 0.171,
+              "vague_declarative_count": 0,
+              "passive_hint_count": 0,
+              "total_tells": 0,
+              "ai_tell_score": 9.91,
+              "confidence": "high",
+              "flags": [
+                "Monotone sentence rhythm: sentence length CV is 0.171 (< 0.20)."
+              ]
+            }
+          }
+        }
+      ],
+      "post_docstats": {
+        "readability": {
+          "flesch_reading_ease": 2.891428571428605,
+          "flesch_kincaid_grade": 18.073015873015873,
+          "gunning_fog": 20.463492063492065,
+          "smog_index": 17.5058628484301,
+          "automated_readability_index": 19.851889763779532,
+          "coleman_liau_index": 20.306349206349207,
+          "linsear_write_formula": 16.8,
+          "dale_chall_readability_score": 14.202226984126986,
+          "text_standard": "20.0",
+          "spache": 9.714838582677165,
+          "syllable_count": 272,
+          "word_count": 126,
+          "sentence_count": 6
+        },
+        "ai_patterns": {
+          "em_dash_count": 0,
+          "em_dash_rate": 0.0,
+          "adverb_ly_count": 1,
+          "adverb_ly_rate": 0.79,
+          "throat_clearing_count": 0,
+          "binary_contrast_count": 0,
+          "wh_starter_count": 0,
+          "wh_starter_rate": 0.0,
+          "fragment_count": 0,
+          "list_of_three_count": 0,
+          "sentence_len_cv": 0.171,
+          "vague_declarative_count": 0,
+          "passive_hint_count": 0,
+          "total_tells": 0,
+          "ai_tell_score": 9.91,
+          "confidence": "high",
+          "flags": [
+            "Monotone sentence rhythm: sentence length CV is 0.171 (< 0.20)."
+          ]
+        }
+      },
+      "movement": {
+        "delta_ai_tell_score": 6.71,
+        "delta_fk_grade": 6.73,
+        "delta_total_tells": -12,
+        "pre_ai_tell_score": 3.2,
+        "post_ai_tell_score": 9.91,
+        "pre_fk_grade": 11.347132867132867,
+        "post_fk_grade": 18.073015873015873
+      }
+    }
+  }
+}
