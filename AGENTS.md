@@ -1,16 +1,20 @@
 # Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+## Issue Tracking
 
-## Quick Reference
+This project uses **bd (beads)** for issue tracking.
+Run `bd prime` for workflow context, or install hooks (`bd hooks install`) for auto-injection.
 
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --status in_progress  # Claim work
-bd close <id>         # Complete work
-bd sync               # Sync with git
-```
+**Quick reference:**
+- `bd ready` - Find unblocked work
+- `bd show <id>` - View issue details
+- `bd create "Title" --type task --priority 2` - Create issue
+- `bd update <id> --claim` - Claim work
+- `bd close <id>` - Complete work
+- `bd dolt push` - Push beads to remote
+
+For full workflow details: `bd prime`
+
 
 ## Maintenance & Quality
 
