@@ -30,3 +30,6 @@ others/
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# Eval experiment raw outputs (large, regenerable)
+eval/results/
