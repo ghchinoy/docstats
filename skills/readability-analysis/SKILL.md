@@ -1,31 +1,39 @@
 ---
 name: readability-analysis
-description: Assess and improve the readability and stylistic authenticity of text, web pages, or PDFs. Computes comprehensive readability scores (Flesch-Kincaid, Gunning Fog, SMOG, consensus grade level) and detects synthetic AI writing patterns (em dashes, throat-clearing openers, binary contrasts, high-offender adverbs). Use when reviewing technical drafts, tuning reading age, or evaluating AI writing assistance.
+description: Assess readability and lint technical prose for house-style conformity and synthetic writing patterns. Computes comprehensive readability scores (Flesch-Kincaid, Gunning Fog, SMOG, consensus grade level) and provides deterministic house-style linting (throat-clearing openers, binary contrasts, non-technical adverbs, rhetorical em dashes). Designed as a post-hoc acceptance gate and editorial QA linter.
 license: Apache-2.0
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Readability & Technical Editorial Analysis
 
-This skill provides multi-dimensional analysis of text complexity and AI writing patterns, converting raw statistical metrics into actionable editorial guidance. It is backed by the `docstats` multi-protocol engine.
+This skill provides multi-dimensional analysis of text complexity and house-style linting, converting raw statistical metrics into actionable editorial guidance. It is backed by the `docstats` multi-protocol engine.
+
+> **Design Role:** `docstats` is designed as a **post-hoc acceptance gate** (for CI/CD pipelines, PR reviews, and pre-publish QA) rather than an in-loop generative dial. Empirical evaluations show that injecting live numeric metrics during generation does not improve prose quality over clear textual guidance and risks artificial metric gaming.
 
 ## Available MCP Tools (Server `readability-docstats`)
 
 ### 1. `analyze_document` (Preferred)
 Performs comprehensive two-axis assessment:
 - **Axis A (Readability):** 10 grade-level and reading ease formulas + consensus standard.
-- **Axis B (AI Writing Patterns):** Deterministic counts and rates of prose em dashes, high-offender adverbs, throat-clearing openers, binary contrast frames, and rhythm variation. Computes `ai_tell_score` (0.0–10.0 scale, floor ≥ 7.0).
+- **Axis B (House-Style Linting):** Deterministic counts and rates of throat-clearing openers, binary contrast frames, non-technical filler adverbs, prose em dashes, and rhythm variation hints. Computes `ai_tell_score` (0.0–10.0 scale, floor ≥ 7.0).
 
 ### 2. `get_readability_scores`
 Calculates Axis A readability scores and raw text statistics (syllables, words, sentences).
 
 ### 3. `get_ai_pattern_scores`
-Calculates Axis B editorial tell counts, rates, diagnostic flags, and `ai_tell_score`.
+Calculates Axis B house-style lint counts, rates, diagnostic flags, and `ai_tell_score`.
 
 ---
 
 ## How to Run It
+
+### Recommended Workflow: Post-Hoc Acceptance Gate
+Use `docstats` asynchronously after drafting or during automated review:
+1. Generate or edit the draft using qualitative editorial guidelines.
+2. Run `analyze_document` as a quality gate.
+3. If Axis B or Axis A fails, apply targeted edits to resolve diagnostic flags.
 
 ### MCP Invocation
 Pass **exactly one** source parameter:
@@ -66,25 +74,30 @@ uv run python main.py --server-type fastapi --port 8000
 | **Very Dense** | Grade 15–20 | 10–30 | Formal specifications, RFCs, kernel docs |
 | **Impenetrable** | Grade > 20 | < 10 | Academic papers, dense legal agreements |
 
-### Axis B: AI Writing Pattern Tells
+### Axis B: House-Style Linting & Pattern Tells
+
+> **Empirical Context:** Axis B patterns are **deterministic house-style linting checks**, not a statistical AI classifier. Empirical benchmarks show heuristic pattern detectors achieve low classification capability (AUC = 0.577 general, AUC = 0.403 technical; em-dash correlation is even inverted in technical prose). Axis B enforces crisp, uncluttered technical style regardless of author provenance.
 
 | Metric | Target / Passing Threshold | Actionable Guidance |
 |---|---|---|
-| `ai_tell_score` | **≥ 7.0 / 10.0** | Floor threshold; below 7.0 indicates heavy synthetic tropes. |
-| `em_dash_count` | ≤ 0.5 per 100 words in prose | Sparse grammatical breaks allowed; remove rhetorical drama dashes. |
-| `throat_clearing_count` | 0 | Cut openers ("Here's the thing:", "It's worth noting that"). |
+| `ai_tell_score` | **≥ 7.0 / 10.0** | Floor threshold; below 7.0 indicates high density of forbidden stylistic tropes. |
+| `em_dash_count` | ≤ 0.5 per 100 words in prose | Sparse grammatical breaks allowed; eliminate rhetorical drama dashes. |
+| `throat_clearing_count` | 0 | Cut openers ("Here's the thing:", "It's worth noting that", "In today's..."). |
 | `binary_contrast_count` | 0 | Eliminate "Not X, it's Y" and "X isn't the problem, Y is" framing. |
-| `adverb_ly_rate` | ≤ 1.5 per 100 words | Remove non-technical -ly adverbs ("fundamentally", "genuinely"). |
-| `sentence_len_cv` | ≥ 0.20 | Vary sentence length; avoid metronomic pacing. |
+| `adverb_ly_rate` | ≤ 1.5 per 100 words | Remove non-technical -ly filler adverbs ("fundamentally", "genuinely"). |
+| `sentence_len_cv` | *Advisory Hint* (~0.20–0.40) | Advisory rhythm indicator only. **Do NOT** enforce strict numeric CV targets in generation prompts (research shows this degrades natural sentence rhythm variation). |
 | `flags` | Empty list | Address specific diagnostic suggestions returned by the tool. |
 
 ---
 
-## Combined Verdict Matrix
+## Combined Verdict Matrix & Provenance-Aware Guidance
 
-| Axis A (Audience Fit) | Axis B (AI Tell Score) | Combined Recommendation |
-|---|---|---|
-| **In Band** | **≥ 7.0 (Pass)** | **Ship** (Text is well-calibrated and authentic). |
-| **In Band** | **< 7.0 (Fail)** | **Revise for Voice** (Resolve Axis B diagnostic flags). |
-| **Off-Target** | **≥ 7.0 (Pass)** | **Revise for Complexity** (Adjust sentence length / vocabulary for target audience). |
-| **Off-Target** | **< 7.0 (Fail)** | **Full Rewrite** (Address both readability band and synthetic tropes). |
+The acceptance verdict combines audience fit (Axis A) and house-style compliance (Axis B), adapted by document provenance:
+
+| Axis A (Audience Fit) | Axis B (Style Score) | General Verdict | Provenance-Aware Guidance |
+|---|---|---|---|
+| **In Band** | **≥ 7.0 (Pass)** | **Ship** | Ready to publish. Text is well-calibrated and authentic. |
+| **In Band** | **< 7.0 (Fail)** | **Revise for Voice** | **Raw AI Draft:** Aggressively restructure to remove synthetic tropes.<br>**Human Text:** Apply light-touch linting on specific flags; preserve authorial voice. |
+| **Off-Target** | **≥ 7.0 (Pass)** | **Revise for Complexity** | Adjust sentence length and vocabulary for the target audience band without altering voice. |
+| **Off-Target** | **< 7.0 (Fail)** | **Full Rewrite** | **Raw AI Draft:** Complete overhaul of complexity and style.<br>**Human Text:** Refactor dense sections for clarity; address style lints. |
+

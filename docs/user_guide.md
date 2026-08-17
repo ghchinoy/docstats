@@ -23,7 +23,9 @@ Comprehensive documentation for running, configuring, and integrating **docstats
 
 Docstats evaluates written documents along two primary dimensions:
 1. **Axis A (Readability):** Ten standardized readability formulas and consensus grade levels.
-2. **Axis B (AI Writing Patterns):** Structural tell detection (e.g. adverbs, throat-clearing openers, binary contrast frames, and rhythm analysis).
+2. **Axis B (House-Style Linting):** Deterministic pattern checking (e.g. non-technical filler adverbs, throat-clearing openers, binary contrast frames, and rhythm indicators).
+
+Docstats is designed as a **post-hoc acceptance gate** (for CI/CD pipelines, PR checks, and pre-publish QA) rather than an in-loop generative dial. Empirical research demonstrates that providing live numeric metrics during text generation does not improve quality over pure editorial guidelines and risks artificial metric gaming.
 
 Docstats is built with Python (3.10+) using `textstat`, `py-readability-metrics`, `fastapi`, and the official `mcp` SDK.
 
@@ -196,7 +198,7 @@ To configure clients that do not automatically discover plugin manifests:
 
 ---
 
-## 6. Two-Axis Assessment (Readability + AI Patterns)
+## 6. Two-Axis Assessment (Readability + House-Style Linting)
 
 Docstats provides unified two-axis evaluation via `analyze_document`:
 
@@ -231,21 +233,26 @@ Docstats provides unified two-axis evaluation via `analyze_document`:
 }
 ```
 
-### AI Pattern Indicators (Axis B)
+### House-Style Pattern Indicators (Axis B)
+Axis B evaluates deterministic editorial rules rather than functioning as a statistical AI detector (empirical benchmarks show low classification capability for detection, e.g., AUC = 0.577 general, 0.403 technical). It enforces clean, direct technical prose:
 - **High-Offender Adverbs:** Flags non-technical filler adverbs (e.g. *seamlessly*, *delicately*, *testament*).
 - **Throat-Clearing Openers:** Flags rhetorical announcements (*"It is important to remember that..."*, *"In today's fast-paced world..."*).
 - **Binary Contrast Frames:** Detects artificial antithesis (*"It's not just X, it's Y"*).
-- **Monotone Rhythm:** Measures sentence length coefficient of variation (CV). A CV < 0.20 signals monotonous AI cadence.
+- **Rhythm Indicator (Advisory):** Measures sentence length coefficient of variation (CV). A low CV (< 0.20) signals potential monotone pacing. *Note: CV is an advisory hint only; do NOT enforce numeric CV targets in generation prompts as it degrades natural sentence rhythm.*
 
 ---
 
-## 7. Golden Set Benchmarking & Quality Gates
+## 7. Golden Set Benchmarking & Non-Circular Evaluation
 
 The `samples/` directory contains reference texts across difficulty levels:
 - `level_primary.txt` (Grade ~1)
 - `level_middle.txt` (Grade ~12-15)
 - `level_academic.txt` (Grade ~22-23)
 - `level_legal.txt` (Grade ~25)
+
+### Internal Drift Anchors vs External Evaluation
+- **Internal Drift Anchors (Golden Set):** The baseline sample files anchor internal regression tests (`baseline_analysis.py`). They ensure that changes to parsing, tokenization, or formula implementations produce zero unexpected drift in calculated scores.
+- **Independent Non-Circular External Validation:** When evaluating the quality of text generated or edited by AI agents, docstats scores should not be used as the sole circular judge. Rigorous evaluations must utilize independent, decoupled scoring frameworks (e.g., blind human/LLM comparative judging, held-out readability grading, and non-parametric statistical tests like Wilcoxon signed-rank).
 
 ### Running Baseline Verification
 Run the baseline analyzer to confirm zero drift after changing extraction or metric algorithms:

@@ -7,19 +7,29 @@ given actionable revision guidance.
 
 ## 1. Purpose and principle
 
-A good AI-assisted technical post must satisfy two independent requirements:
+A good technical document must satisfy two independent requirements:
 
-- **Readability** — is the prose pitched at the right reading level for its
-  audience? (formulaic, objective; docstats already computes this)
-- **AI-tell density** — does the prose read like a machine wrote it, using
-  rhetorical devices before the claim exists? (currently subjective in the
-  skill; this spec makes the detectable part objective)
+- **Readability (Axis A)** — is the prose pitched at the right reading level for its
+  target audience? (formulaic, objective; docstats computes this via standard formulas)
+- **House-Style Conformity (Axis B)** — does the prose adhere to crisp, direct technical
+  editorial standards without throat-clearing, binary contrast framing, non-technical
+  adverbs, or excessive rhetorical punctuation?
 
-These axes are orthogonal. Text can be easy to read and still saturated with
-AI tells; text can be tell-free and pitched at the wrong grade level. We
-therefore report a **two-axis scorecard with no blended headline number**. A
-draft passes only when both axes pass. A single composite would hide which
-axis failed, which is exactly the information a reviewer needs.
+> **Design Role:** `docstats` is positioned as a **post-hoc acceptance gate** (for CI/CD
+> pipelines, PR reviews, and pre-publish QA) rather than an in-loop generative dial.
+> Empirical evaluations show that injecting live numeric metrics during generation does not
+> improve prose quality over clear textual guidance ($p = 0.7253$) and risks artificial
+> metric gaming.
+
+> **Empirical Context on Axis B:** Axis B patterns are **deterministic house-style linting checks**,
+> not a statistical AI detector. Benchmark evaluations show that heuristic pattern rules have
+> low classification power for detecting synthetic origin (AUC = 0.577 general, AUC = 0.403
+> technical; em-dash correlation even inverts in technical writing). Axis B enforces clean,
+> direct technical house style regardless of author provenance.
+
+These axes are orthogonal. Text can be easy to read and still violate house style; text can be
+lint-clean and pitched at the wrong grade level. We therefore report a **two-axis scorecard
+with no blended headline number**. A draft passes only when both axes pass.
 
 ## 2. The two axes
 
@@ -35,13 +45,12 @@ single formula. The primary signals are `flesch_kincaid_grade`,
 Secondary signals (`gunning_fog`, `smog_index`, `coleman_liau_index`, etc.)
 corroborate and are used for drift detection, not gating.
 
-### Axis B — AI-tell density (new)
+### Axis B — House-Style Pattern Density
 
-Source: a new `AIPatternScoresModel`, served alongside Axis A through the same
-async funnel so REST, MCP, and CLI all expose both. Field shapes are specified
-in Section 5. Axis B turns the machine-detectable subset of the ten editorial
-rules into counts, rates, and a rolled-up 0-10 score aligned to the skill's
-existing rubric.
+Source: `AIPatternScoresModel`, served alongside Axis A through the same
+async funnel so REST, MCP, and CLI all expose both. Axis B turns the
+machine-detectable subset of editorial rules into counts, rates, diagnostic flags,
+and a rolled-up 0-10 style conformity score.
 
 ## 3. Readability bands (Axis A targets)
 
@@ -101,25 +110,23 @@ human-only rules stay with the skill's judgment and the Core Tension test.
 | 5 | No binary contrasts as frame | Machine | `binary_contrast_count` | Patterns: "not X, it's Y", "isn't ... it's", "not only ... but" |
 | 6 | No staccato fragmentation | Machine (heuristic) | `fragment_count` | Very short verbless sentences; noisy, report as hint |
 | 7 | No Wh- sentence starters | Machine | `wh_starter_rate` | Sentence-initial What/When/Where/Which/Who/Why/How |
-| 8 | Vary rhythm | Machine | `sentence_len_cv`, `list_of_three_count` | Coefficient of variation of sentence length; count of 3-item lists |
+| 8 | Vary rhythm | Machine (advisory) | `sentence_len_cv`, `list_of_three_count` | **Advisory hint only.** Research (E4) shows prompting models with hard CV targets degrades rhythm variance. |
 | 9 | No vague declaratives | Machine (heuristic) | `vague_declarative_count` | "The implications are significant", "This is the single decision that ..." |
 | 10 | Trust the reader | Human | none | Hand-holding/permission-granting; needs judgment |
 
-Rubric dimensions map to Axis B signals as follows (skill rubric,
-`SKILL.md:111-123`):
+Rubric dimensions map to Axis B signals as follows:
 
 | Rubric dimension | Grounded in Axis B signal(s) | Scored by |
 |---|---|---|
 | Directness | throat_clearing_count, vague_declarative_count, binary_contrast_count | Axis B (objective floor) |
-| Rhythm | sentence_len_cv, list_of_three_count | Axis B (objective floor) |
+| Rhythm | sentence_len_cv (advisory), list_of_three_count | Axis B (advisory hint) / Human |
 | Density | words/sentence, total cuttable-pattern count | Axis B (objective floor) |
 | Authenticity | none | Human only |
 | Trust | passive_hint_count (weak) | Human primary |
 
-## 5. AIPatternScoresModel (field shapes, spec-level)
+## 5. AIPatternScoresModel (field shapes)
 
-Proposed Pydantic model to sit beside `ReadabilityScoresModel`. Types are
-indicative; final names settle in Phase 1.
+Pydantic model sitting beside `ReadabilityScoresModel`:
 
 | Field | Type | Meaning |
 |---|---|---|
@@ -130,41 +137,37 @@ indicative; final names settle in Phase 1.
 | `wh_starter_rate` | float | Wh- sentence starts per 100 sentences |
 | `fragment_count` | int | Heuristic sentence fragments (hint) |
 | `list_of_three_count` | int | Three-item parallel lists in prose |
-| `sentence_len_cv` | float | Coefficient of variation of sentence length (rhythm) |
+| `sentence_len_cv` | float | Coefficient of variation of sentence length (advisory rhythm hint) |
 | `vague_declarative_count` | int | Significance-announcing sentences (hint) |
 | `passive_hint_count` | int | Heuristic passive-voice hits (weak, advisory) |
 | `total_tells` | int | Sum of high-confidence tell counts |
-| `ai_tell_score` | float | Rolled-up 0-10 (10 = clean); see Section 6 |
+| `ai_tell_score` | float | Rolled-up 0-10 style conformity score (10 = clean); see Section 6 |
 | `confidence` | str | "high" / "low" (low when word_count < 100) |
 
 Detectors run on extracted prose only. Code blocks, inline code, and table
 cells are stripped before detection so the technical exceptions in
-`SKILL.md:100-108` hold automatically.
+`SKILL.md` hold automatically.
 
 ## 6. Axis B score and floor
 
 `ai_tell_score` is a 0-10 scale (10 = clean prose, no tells). It is computed
 by penalizing normalized tell rates. High-confidence tells (rules 1, 3, 4, 5,
 7) carry full weight; heuristic tells (rules 6, 9) and the weak passive hint
-carry reduced weight; rhythm (rule 8) is scored from `sentence_len_cv`.
+carry reduced weight; rhythm (`sentence_len_cv`) is treated as an advisory indicator.
 
-Floor: `ai_tell_score >= 7.0` to pass. This aligns with the skill's manual
-"below 35/50: revise" threshold, treating the three objective dimensions
-(Directness, Rhythm, Density) as the machine-scored 30 points, with a per-post
-floor of 7/10 on the rolled-up axis.
+Floor: `ai_tell_score >= 7.0` to pass.
 
 Axis B verdict:
 - **Pass** — `ai_tell_score >= 7.0` and no single high-confidence tell count
-  is egregious (e.g., em_dash_count in prose should be 0).
+  is egregious.
 - **Warn** — 5.0 to 6.9, or one high-confidence category elevated.
 - **Fail** — below 5.0, or multiple high-confidence categories elevated.
 
-The Core Tension override (`SKILL.md:17-25`) still applies: a human reviewer
-may keep a flagged device when it earns its place. The scorecard records the
-override with a one-line justification so the count is explained, not silently
-suppressed.
+The Core Tension override still applies: a human reviewer may keep a flagged
+device when it earns its place. The scorecard records the override with a
+one-line justification so the count is explained, not silently suppressed.
 
-## 7. The two-axis scorecard (output format)
+## 7. The two-axis scorecard & Combined Verdict Matrix
 
 The recommendation surface reports both axes and a combined verdict. Example:
 
@@ -175,61 +178,53 @@ Axis A  Readability
   text_standard (consensus): grade 11    band: Dense       -> target Accessible-Dense  [PASS]
   flesch_reading_ease: 42.3   flesch_kincaid_grade: 11.2   word_count: 1840
 
-Axis B  AI-tell density
+Axis B  House-Style Conformity
   ai_tell_score: 6.4 / 10                                                            [WARN]
   em dashes in prose: 3   throat-clearing: 2   binary contrasts: 4   Wh- starts: high
-  adverb rate: 3.1/100w   sentence-length CV: 0.18 (low, metronomic)
+  adverb rate: 3.1/100w   sentence-length CV: 0.18 (advisory rhythm hint)
 
 VERDICT: REVISE
   Axis A acceptable. Axis B below floor (6.4 < 7.0): remove 3 em dashes,
-  cut 2 throat-clearing openers, rewrite 4 binary-contrast frames, vary rhythm.
+  cut 2 throat-clearing openers, rewrite 4 binary-contrast frames.
 ```
 
-Combined verdict rules:
+### Combined Verdict Matrix & Provenance-Aware Guidance
 
-| Axis A | Axis B | Verdict |
-|---|---|---|
-| Pass | Pass | Ship |
-| Pass | Warn | Revise (minor) |
-| Pass | Fail | Revise |
-| Warn | Pass | Revise (readability) |
-| Fail | any | Revise (readability blocks) |
-| any | Fail | Revise |
+| Axis A (Audience Fit) | Axis B (Style Score) | Verdict | Provenance-Aware Action |
+|---|---|---|---|
+| **Pass** | **Pass** | **Ship** | Ready to publish. |
+| **Pass** | **Warn / Fail** | **Revise for Voice** | **Raw AI Draft:** Aggressively restructure to remove synthetic tropes.<br>**Human Text:** Apply light-touch linting for specific diagnostic flags; preserve authorial voice. |
+| **Warn / Fail** | **Pass** | **Revise for Complexity** | Adjust sentence length / vocabulary for target audience without altering voice. |
+| **Fail** | **Fail** | **Full Rewrite** | **Raw AI Draft:** Overhaul complexity and style.<br>**Human Text:** Refactor dense sections for clarity; address style lints. |
 
 A draft ships only when both axes pass. No blended headline number is emitted.
 
 ## 8. Integration target (MCP)
 
-Per the Phase 0 decision, the `technical-post-editorial` skill will pull Axis A
-and Axis B from the `readability_docstats` MCP tool during review (the server
-is already referenced in the agent-skills mcp-security audit sample). The skill
-consumes the two models, applies the human-only dimensions and the Core Tension
-override, and renders the scorecard in Section 7. The scorecard format is
-source-agnostic so a CLI/manual path remains possible if MCP is unavailable.
+The `technical-post-editorial` skill pulls Axis A and Axis B from the
+`readability_docstats` MCP tool during review. The skill consumes the two models,
+applies the human-only dimensions and the Core Tension override, and renders the
+scorecard in Section 7 as a post-hoc acceptance check.
 
-## 9. Calibration and drift
+## 9. Calibration, Drift, and Evaluation Standards
 
-- Bands and the Axis B floor are calibrated against all four Golden Set levels
-  equally (Phase 0), then validated on paired clean/sloppy AI fixtures (Phase 2).
-- The committed baseline (`samples/baseline_results.json`) remains the drift
-  anchor for Axis A. Phase 2 extends it to Axis B and converts the manual
-  `baseline_analysis.py` eyeball check into an automated pytest assertion,
-  closing the current gap noted in `AGENTS.md`.
+### Internal Drift Anchors vs External Evaluation Standards
+To maintain methodological and scientific integrity, docstats strictly separates
+internal regression calibration from external performance evaluation:
+
+1. **Internal Regression Drift Anchors (The Golden Set):**
+   - The four committed reference samples in `samples/baseline_results.json` (`level_primary.txt`, `level_middle.txt`, `level_academic.txt`, `level_legal.txt`) serve strictly as deterministic code-drift anchors.
+   - Any refactoring of `extraction.py` or `metrics.py` must maintain exact zero-drift against these anchors.
+2. **Independent Non-Circular External Evaluation Standards:**
+   - External validation of editorial rewriters or LLM outputs **must never use docstats' internal scoring as the sole arbiter of quality** (which would be circular).
+   - Valid evaluations must employ independent held-out metrics (e.g. decoupled FK grading, blind multi-judge human or LLM scoring, paired Wilcoxon signed-rank significance testing).
 
 ## 10. Open items for later phases
 
 - Phase 1: implement `AIPatternScoresModel` + detectors; wire through
-  `metrics.py`, `fastapi_app.py`, `mcp_server.py`.
+  `metrics.py`, `fastapi_app.py`, `mcp_server.py`. (Completed)
 - Phase 2: add AI-slop fixtures + expected-findings JSON; automate the
-  two-axis regression baseline.
+  two-axis regression baseline (`docstats-ysq`).
 - Phase 3: update the skill to consume both models and render the scorecard;
-  wire the MCP call.
-- Phase 4: hill-climb the Axis B weights and readability bands; lock baseline.
+  wire the MCP call (`docstats-561`).
 
-## Tracking note
-
-Intended bd issue for this deliverable could not be filed: the local bd/dolt
-store in `.beads/` is uninitialized (missing `issue_prefix`) and the proxied
-server did not start cleanly during this session. `bd bootstrap` requires a
-running dolt sql-server. This needs a one-time infra fix before bd tracking
-resumes for this repo. This spec has no dependency on that fix.

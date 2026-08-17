@@ -1,9 +1,10 @@
 # docstats
 
-Docstats calculates readability scores and detects AI writing patterns for plain text, web pages, and PDFs. Run it as an MCP server for AI coding assistants or as a FastAPI web service.
+Docstats calculates readability scores and provides deterministic house-style linting for plain text, web pages, and PDFs. Designed as a post-hoc acceptance gate for CI/CD pipelines, PR reviews, and pre-publish editorial QA, docstats runs as an MCP server for AI coding assistants or as a FastAPI web service.
 
 ## Table of Contents
 - [Features](#features)
+- [Recommended Workflow: Post-Hoc Acceptance Gate](#recommended-workflow-post-hoc-acceptance-gate)
 - [Quickstart](#quickstart)
 - [Installation](#installation)
 - [Agent Plugin & MCP Usage](#agent-plugin--mcp-usage)
@@ -16,10 +17,15 @@ Docstats calculates readability scores and detects AI writing patterns for plain
 
 ## Features
 
-- **Readability scoring:** Computes consensus grade level plus 9 standard formulas (Flesch Reading Ease, Flesch-Kincaid, Gunning Fog, SMOG, Coleman-Liau, and more).
+- **Readability scoring (Axis A):** Computes consensus grade level plus 9 standard formulas (Flesch Reading Ease, Flesch-Kincaid, Gunning Fog, SMOG, Coleman-Liau, and more).
+- **House-style linting (Axis B):** Deterministic pattern checking for throat-clearing openers, binary contrast frames, non-technical filler adverbs, rhetorical em dashes, and rhythm indicators.
 - **Multiple inputs:** Reads direct text, public web pages, and PDFs from web URLs or Google Cloud Storage (`gs://`).
 - **Agent Plugin v1.0.0:** Native MCP STDIO tool (`readability-docstats`) and prompt skill (`readability-analysis`).
 - **Flexible runtime:** Runs as a local REST API, an MCP STDIO server, or a streamable HTTP server.
+
+## Recommended Workflow: Post-Hoc Acceptance Gate
+
+Docstats is optimized as an **asynchronous acceptance gate and editorial linter** rather than an in-prompt generative dial. Empirical research indicates that injecting live numeric metrics during text generation does not improve prose quality over clear textual guidance and risks artificial metric gaming. Use `docstats` to audit drafts, run pre-commit checks, or gate documentation CI workflows.
 
 ## Quickstart
 
@@ -168,7 +174,7 @@ Docstats provides the following metrics:
 ## Documentation
 
 - [User Guide](docs/user_guide.md) — Comprehensive guide to configuration, endpoints, extraction pipelines, and troubleshooting.
-- [Scoring Specification](docs/scoring-spec.md) — Specification for two-axis assessment and AI pattern detection.
+- [Scoring Specification](docs/scoring-spec.md) — Specification for two-axis assessment and house-style linting.
 - [Readability Analysis Skill](skills/readability-analysis/SKILL.md) — Model-facing prompt skill and interpretation guide.
 
 ## Contributing
