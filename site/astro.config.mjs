@@ -12,9 +12,13 @@ export default defineConfig({
       title: "docstats",
       description:
         "Readability scoring and deterministic house-style linting for text, web pages, and PDFs. An MCP server and REST service designed as a post-hoc acceptance gate.",
-      social: {
-        github: "https://github.com/ghchinoy/docstats",
-      },
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/ghchinoy/docstats",
+        },
+      ],
       editLink: {
         baseUrl: "https://github.com/ghchinoy/docstats/edit/main/site/",
       },
