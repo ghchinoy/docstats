@@ -1,15 +1,15 @@
 ---
 title: Inputs & Extraction
-description: The three input sources docstats accepts — direct text, web URLs, and Google Cloud Storage PDFs — and how each is extracted into clean prose.
+description: Supported input sources (direct text, web URLs, and Google Cloud Storage PDFs) and the preprocessing pipeline.
 sidebar:
   order: 2
 ---
 
-Every docstats request accepts **exactly one** input source. The extraction pipeline turns that source into clean prose before any scoring runs, so code blocks, markup, and boilerplate do not distort the metrics.
+Every docstats request accepts **exactly one** input source. The extraction pipeline extracts clean prose before scoring, preventing code blocks, markup, and boilerplate from skewing metrics.
 
-## Direct text (`text`)
+## Direct Text (`text`)
 
-A raw plaintext or markdown string. Ideal for interactive queries, inline code comments, or editor buffers.
+A plaintext or markdown string, suitable for editor buffers, single paragraphs, and terminal queries.
 
 ```json
 { "text": "Your draft content here..." }
@@ -17,10 +17,10 @@ A raw plaintext or markdown string. Ideal for interactive queries, inline code c
 
 ## Web URL (`web_url`)
 
-A publicly accessible `http://` or `https://` URL.
+A publicly reachable HTTP or HTTPS URL.
 
-- **HTML pages** — content is fetched and parsed with `BeautifulSoup`, stripping `<script>`, `<style>`, and navigation boilerplate to extract the main article prose.
-- **Web PDFs** — if the URL ends with `.pdf` (or returns `application/pdf`), the document is streamed and extracted page by page using `pypdf`.
+- **HTML pages**: Content is retrieved and parsed with `BeautifulSoup`, removing `<script>`, `<style>`, and navigation boilerplate to isolate prose.
+- **Web PDFs**: For URLs ending in `.pdf` or returning `application/pdf`, docstats streams the file and extracts text page by page with `pypdf`.
 
 ```json
 { "web_url": "https://en.wikipedia.org/wiki/Readability" }
@@ -28,7 +28,7 @@ A publicly accessible `http://` or `https://` URL.
 
 ## Google Cloud Storage PDF (`gcs_pdf_uri`)
 
-A URI pointing to a PDF file in Google Cloud Storage:
+A URI referencing a PDF stored in Google Cloud Storage:
 
 ```
 gs://bucket-name/path/to/document.pdf
@@ -36,14 +36,14 @@ gs://bucket-name/path/to/document.pdf
 
 ### Authentication
 
-Reading from `gs://` requires Google Cloud Application Default Credentials (ADC). Configure them locally:
+Reading from `gs://` URIs requires Google Cloud Application Default Credentials (ADC). Authenticate locally via:
 
 ```bash
 gcloud auth application-default login
 ```
 
-Or set `GOOGLE_APPLICATION_CREDENTIALS` to a service account key path. The account must have `roles/storage.objectViewer` on the target bucket. See [Troubleshooting](/docstats/guides/troubleshooting/) if you hit an ADC error.
+Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a service account key path with `roles/storage.objectViewer` permissions on the bucket.
 
-## Why extraction matters for Axis B
+## Extraction and Axis B
 
-Axis B ([house-style linting](/docstats/deep-dives/house-style-linting/)) runs on extracted prose only. Code blocks, inline code, and table cells are stripped before detection, so the technical exceptions in the house-style rules hold automatically — an em dash inside a code sample never counts as a rhetorical em dash.
+Axis B ([house-style linting](/docstats/deep-dives/house-style-linting/)) evaluates extracted prose only. The pipeline strips code blocks, inline code, and table cells before running pattern detectors. This ensures technical exceptions hold automatically, preventing markdown syntax and code operators from triggering lint warnings.

@@ -17,24 +17,24 @@ hero:
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-## Two axes, no blended number
+## Two Independent Axes
 
-docstats evaluates a document along two independent dimensions and reports both. It never collapses them into a single headline score.
+docstats evaluates documents along two independent dimensions and reports both without blending them into a single score.
 
 <CardGrid>
-  <Card title="Axis A — Readability" icon="open-book">
+  <Card title="Axis A: Readability" icon="open-book">
     Ten standard formulas (Flesch Reading Ease, Flesch-Kincaid, Gunning Fog, SMOG, Coleman-Liau, and more) plus a consensus grade level. Answers: *is this pitched at the right reading level for its audience?*
   </Card>
-  <Card title="Axis B — House-Style Linting" icon="pencil">
+  <Card title="Axis B: House-Style Linting" icon="pencil">
     Deterministic pattern checks for throat-clearing openers, binary contrast frames, non-technical filler adverbs, and rhetorical em dashes. Answers: *is the prose crisp and direct?*
   </Card>
 </CardGrid>
 
-## A gate, not a dial
+## Post-Hoc Acceptance Gating
 
-docstats is designed as a **post-hoc acceptance gate** for CI/CD pipelines, PR reviews, and pre-publish QA — not as an in-loop generative dial. Empirical evaluation shows that injecting live numeric metrics during generation does not improve prose quality over clear textual guidance (p = 0.7253) and risks artificial metric gaming. Draft with editorial guidelines; gate with docstats.
+docstats operates as an asynchronous acceptance gate for CI/CD pipelines, PR reviews, and pre-publish QA. In empirical benchmarks, injecting live numeric metrics during text generation yielded no measurable quality improvement over textual guidance (p = 0.7253) and induced metric gaming. Authors draft against clear guidelines and audit completed text with docstats.
 
-## Where to next
+## Documentation
 
 <CardGrid stagger>
   <LinkCard title="Getting Started" description="Install with uv and run your first analysis in under a minute." href="/docstats/guides/getting-started/" />

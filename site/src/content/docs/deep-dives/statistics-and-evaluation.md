@@ -1,56 +1,54 @@
 ---
 title: Statistics & Evaluation
-description: The empirical evidence behind docstats' design — why live metrics don't help generation, the limits of pattern-based detection, and the non-circular evaluation standards that keep results honest.
+description: Empirical findings on in-loop generation metrics, statistical limits of pattern detection, and non-circular evaluation protocols.
 sidebar:
   order: 4
 ---
 
-docstats' design is grounded in measurement, not intuition. This page collects the empirical findings that shaped it and the statistical standards it holds itself to.
+docstats' architectural choices reflect empirical measurements from controlled benchmark studies and formal statistical methodology.
 
-## Why docstats is a gate, not a dial
+## Empirical Evaluation of In-Loop Metrics
 
-The central design choice — post-hoc gate rather than in-loop generative dial — comes from a controlled experiment.
+A controlled experiment evaluated whether supplying live readability and pattern scores during text generation improves technical prose.
 
-Augmenting an AI rewriter with live, deterministic docstats metrics during generation did **not** improve technical prose over clear text-only editorial guidance. The stats-augmented arm versus the text-only editorial arm was inconclusive: **p = 0.7253**. Both editorial arms beat the no-guidance control (p < 0.01), so *editorial guidance matters* — but feeding the model live numbers on top of it added nothing measurable, and it introduces a real failure mode: **metric gaming**, where the model optimizes the visible number while the prose degrades.
+In controlled testing, augmenting an AI rewriter with live docstats metrics during generation yielded no measurable improvement over text-only editorial guidance ($p = 0.7253$). Both guided editorial arms outperformed the unguided control baseline ($p < 0.01$). Supplying numeric targets during drafting induced **metric gaming**, where models altered syntax to satisfy numbers rather than substance.
 
-The conclusion: use qualitative guidance to draft, and use docstats afterward as an acceptance check.
+These findings validate the post-hoc acceptance gate architecture: authors draft against qualitative guidelines and run docstats during review.
 
-## The limits of pattern-based detection
+## Statistical Limits of Pattern-Based AI Detection
 
-Axis B is a house-style linter, and the statistics are the reason it is framed that way rather than as an AI detector.
+Empirical evaluations demonstrate that heuristic pattern rules lack classification power for identifying AI-generated text:
 
 - General-domain classification: **AUC = 0.577**.
-- Technical-domain classification: **AUC = 0.403** — below chance.
-- The em-dash signal, a popular "AI tell," **inverts** in technical writing: technical human authors use em dashes freely.
+- Technical-domain classification: **AUC = 0.403** (below random chance).
+- In technical prose, em-dash frequency inverts: human technical authors employ em dashes as frequently as language models.
 
-An AUC near 0.5 means the patterns barely separate synthetic from human text; below 0.5 in the technical domain means the naive rule points the wrong way. docstats therefore makes no provenance claim. It enforces clean, direct style regardless of authorship. See [House-Style Linting](/docstats/deep-dives/house-style-linting/).
+Because pattern distributions overlap heavily between human and model prose, Axis B makes no provenance claims. It functions strictly as an editorial style linter. See [House-Style Linting](/docstats/deep-dives/house-style-linting/).
 
-## Non-circular evaluation standards
+## Non-Circular Evaluation Methodology
 
-To keep results honest, docstats strictly separates two things that are easy to conflate.
+### Internal Regression Drift Anchors
 
-### Internal drift anchors (the golden set)
+The committed samples (`level_primary`, `level_middle`, `level_academic`, `level_legal`) in `samples/baseline_results.json` serve exclusively as deterministic code-drift anchors. Changes to extraction or metric computation must maintain zero drift against these baselines.
 
-The four committed reference samples (`level_primary`, `level_middle`, `level_academic`, `level_legal`) in `samples/baseline_results.json` are **deterministic code-drift anchors only**. Any refactor of `extraction.py` or `metrics.py` must maintain exact zero drift against them. They verify that the *code* still computes the same numbers — nothing more.
+### Independent External Evaluation
 
-### Independent external evaluation
+Evaluating text generation quality using the generation tool's internal metrics introduces circularity. Rigorous evaluation requires independent, held-out assessment protocols:
 
-When judging the quality of AI-rewritten or edited text, docstats' own scoring **must never be the sole arbiter** — that would be circular. Valid evaluation uses decoupled, held-out methods:
+- **Blind judging**: Candidate outputs are de-identified and randomized prior to scoring.
+- **Decoupled readability grading**: A standalone Flesch-Kincaid implementation evaluates complexity independently of docstats telemetry.
+- **Distribution-free statistical tests**: Non-parametric Wilcoxon signed-rank tests govern significance claims ($p < 0.05$ threshold).
 
-- **Blind judging** — outputs are de-identified and randomized before scoring.
-- **Held-out readability grading** — a separate FK computation, not docstats' own telemetry.
-- **Distribution-free statistics** — the Wilcoxon signed-rank test (exact for small n, normal approximation with continuity correction for large n), gated at p < 0.05 for any "significant" claim.
+docstats records telemetry across test runs without determining experimental win/loss outcomes.
 
-docstats telemetry can be recorded for every candidate, but it never dictates the win/loss verdict.
+## Reproducibility Standards
 
-## Reproducibility guarantees
+Every study in the research program adheres to the following criteria:
 
-Every experiment in the program upholds:
+- **Blind judging**: Candidate outputs are randomized and de-identified before human or LLM judging.
+- **Independent metrics**: Telemetry data is isolated from judging criteria to prevent circular scoring.
+- **Distribution-free statistics**: Significance testing relies on Wilcoxon signed-rank evaluations.
+- **Automated report compilation**: Tables and metrics derive directly from machine-readable `summary.json` run outputs.
+- **Zero-drift validation**: Metric modifications are validated against baseline sample texts before release.
 
-- **Blind judging** on de-identified, randomized outputs.
-- **Independent held-out metrics** — docstats numbers are recorded but non-authoritative (anti-circularity).
-- **Distribution-free statistics** — dependency-free Wilcoxon signed-rank testing.
-- **Machine-generated tables** — every number in a report is generated from the run's `summary.json`; no hand-typed statistics.
-- **Golden-set zero-drift** — metric changes are validated against the golden set before being relied upon.
-
-For the full experiment portfolio behind these findings, see the [Research Program](/docstats/deep-dives/research-program/).
+For the full study portfolio, see the [Research Program](/docstats/deep-dives/research-program/).

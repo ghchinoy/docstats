@@ -1,69 +1,69 @@
 ---
 title: The Two-Axis Model
-description: Why docstats keeps readability and house-style conformity orthogonal, how the audience bands are calibrated against the golden set, and the combined verdict matrix.
+description: Architectural rationale for maintaining separate readability and house-style evaluation axes, golden-set calibration, and the combined acceptance matrix.
 sidebar:
   order: 3
 ---
 
-docstats reports a **two-axis scorecard with no blended headline number**. This page explains why that design is deliberate and how the two axes combine into a verdict.
+docstats evaluates documents along two independent axes without combining them into a single aggregate score.
 
-## Two independent requirements
+## Orthogonal Evaluation Dimensions
 
-A good technical document must satisfy two requirements that do not depend on each other:
+High-quality technical documentation satisfies two independent criteria:
 
-- **Readability (Axis A)** — is the prose pitched at the right reading level for its target audience? Formulaic and objective; computed by standard formulas.
-- **House-style conformity (Axis B)** — does the prose stay crisp and direct, free of throat-clearing, binary-contrast framing, filler adverbs, and rhetorical punctuation?
+- **Readability (Axis A)**: Calibrates text complexity to target audience reading levels using standardized statistical formulas.
+- **House-Style Conformity (Axis B)**: Enforces direct, concise technical writing rules (eliminating throat-clearing preambles, binary contrast frames, non-technical adverbs, and rhetorical em dashes).
 
-These axes are orthogonal. Text can be easy to read and still violate house style. Text can be lint-clean and pitched at the wrong grade level. Collapsing them into one number would hide exactly the information an editor needs.
+These dimensions are orthogonal. Text can achieve high reading ease while violating house style conventions. Conversely, text can strictly adhere to house style while exceeding the audience's reading comprehension level.
 
-## No blended headline number
+## Independence of Scores
 
-Because the axes measure different things, a single score would be uninterpretable — a "7/10" could mean "perfect readability, poor style" or "poor readability, perfect style," and the fix for each is opposite. docstats keeps them separate and requires **both to pass** before a draft ships.
+Combining readability metrics with editorial lint scores creates ambiguity: a composite score obscures whether a document suffers from excessive vocabulary complexity or stylistic violations. docstats evaluates both dimensions independently, requiring passing marks on both axes before publication.
 
-## Calibrating the bands against the golden set
+## Golden Set Band Calibration
 
-The audience-fit bands are tuned so each golden-set reference sample lands in a distinct band:
+Audience target bands are anchored against docstats' committed baseline (`samples/baseline_results.json`):
 
-| Golden set sample | Reading ease | FK grade | Consensus `text_standard` |
+| Golden Set Sample | Reading Ease | FK Grade | Consensus `text_standard` |
 |---|---|---|---|
-| level_primary | 106.9 | -0.08 | -1.0 |
-| level_middle | 35.3 | 12.56 | 15.0 |
-| level_academic | -29.8 | 22.38 | 23.0 |
-| level_legal | 13.95 | 20.34 | 25.0 |
+| `level_primary` | 106.9 | -0.08 | -1.0 |
+| `level_middle` | 35.3 | 12.56 | 15.0 |
+| `level_academic` | -29.8 | 22.38 | 23.0 |
+| `level_legal` | 13.95 | 20.34 | 25.0 |
 
-Note that `level_middle` already scores at grade ~12–15, so the sample names describe *relative* complexity, not literal U.S. school grades.
+The sample names represent relative complexity rather than direct grade school equivalencies (`level_middle` anchors at grades 12–15).
 
-| Band | FK grade | Reading ease | Golden-set anchor | Intended use |
+| Band | FK Grade | Reading Ease | Golden Set Anchor | Target Use Case |
 |---|---|---|---|---|
-| Very accessible | < 6 | > 70 | level_primary | Onboarding, beginner tutorials |
-| Accessible | 6–10 | 50–70 | (target zone for dev blogs) | General developer posts |
-| Dense | 10–16 | 30–50 | level_middle | Advanced / architecture write-ups |
-| Very dense | 16–22 | 10–30 | level_legal | Specs, reference, legal |
-| Impenetrable | > 22 | < 10 | level_academic | Flag for revision unless intentional |
+| Very Accessible | < 6 | > 70 | `level_primary` | Onboarding materials, beginner tutorials |
+| Accessible | 6–10 | 50–70 | Calibrated target | General developer blogs, READMEs |
+| Dense | 10–16 | 30–50 | `level_middle` | In-depth technical guides, architecture write-ups |
+| Very Dense | 16–22 | 10–30 | `level_legal` | Specifications, RFCs, kernel documentation |
+| Impenetrable | > 22 | < 10 | `level_academic` | Academic papers, formal legal text |
 
-### Axis A verdict
+### Axis A Verdict Criteria
 
-- **Pass** — the consensus grade falls inside the target band for the declared document type.
-- **Warn** — one band away from target.
-- **Fail** — two or more bands away, or "Impenetrable" for a type that should be accessible.
+- **Pass**: Consensus grade falls within the target band for the declared document type.
+- **Warn**: Consensus grade is one band away from the target band.
+- **Fail**: Consensus grade is two or more bands away from target, or falls in "Impenetrable" for general documentation.
 
-Guardrail: under 100 words the formulas lose reliability and `spache` can be uncomputable, so Axis A is reported as **low-confidence** rather than pass/fail.
+For passages under 100 words, formula reliability degrades; docstats marks Axis A as low confidence without issuing binary pass/fail determinations.
 
-## The combined verdict matrix
+## Combined Acceptance Matrix
 
-The recommendation surface reports both axes and a combined verdict, adapted by provenance:
+The final recommendation surface evaluates both axes together, providing provenance-aware guidance:
 
-| Axis A (audience fit) | Axis B (style score) | Verdict | Provenance-aware action |
+| Axis A (Audience Fit) | Axis B (Style Score) | Verdict | Provenance-Aware Guidance |
 |---|---|---|---|
-| **Pass** | **Pass** | **Ship** | Ready to publish. |
-| **Pass** | **Warn / Fail** | **Revise for Voice** | Raw AI draft: aggressively restructure to remove synthetic tropes. Human text: light-touch linting on specific flags; preserve voice. |
-| **Warn / Fail** | **Pass** | **Revise for Complexity** | Adjust sentence length / vocabulary for the target audience without altering voice. |
-| **Fail** | **Fail** | **Full Rewrite** | Raw AI draft: overhaul complexity and style. Human text: refactor dense sections; address style lints. |
+| **Pass** | **Pass** | **Ship** | Publication ready. |
+| **Pass** | **Warn / Fail** | **Revise for Voice** | Raw AI drafts: Restructure sentences to eliminate synthetic tropes. Human-authored text: Address specific diagnostic flags while preserving authorial voice. |
+| **Warn / Fail** | **Pass** | **Revise for Complexity** | Adjust sentence length and vocabulary for the target band without altering voice. |
+| **Fail** | **Fail** | **Full Rewrite** | Raw AI drafts: Overhaul complexity and style. Human-authored text: Decompose dense sections and address style lints. |
 
-A draft ships only when both axes pass. No blended headline number is emitted.
+Publication requires passing marks on both axes.
 
-## Where the axes come from
+## Metric Specifications
 
-- Axis A: see [Readability Formulas](/docstats/deep-dives/readability-formulas/).
-- Axis B: see [House-Style Linting](/docstats/deep-dives/house-style-linting/).
-- The evidence for the gate-not-a-dial stance: see [Statistics & Evaluation](/docstats/deep-dives/statistics-and-evaluation/).
+- Axis A formulas and linguistics: [Readability Formulas](/docstats/deep-dives/readability-formulas/).
+- Axis B pattern detection: [House-Style Linting](/docstats/deep-dives/house-style-linting/).
+- Empirical evaluation and experimental data: [Statistics & Evaluation](/docstats/deep-dives/statistics-and-evaluation/).

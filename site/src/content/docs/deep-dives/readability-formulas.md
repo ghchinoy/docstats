@@ -1,58 +1,62 @@
 ---
 title: Readability Formulas
-description: A linguistic deep dive into the ten readability formulas docstats computes for Axis A — what each measures, its inputs, its range, and why the consensus grade is the most robust signal.
+description: Linguistic foundations and mathematical mechanics of the ten readability formulas in Axis A.
 sidebar:
   order: 1
 ---
 
-Axis A rests on ten well-established readability formulas plus a consensus grade. This page explains the linguistics behind each one: what textual feature it counts, what it outputs, and where it is calibrated to be trustworthy.
+Axis A computes ten standardized readability formulas and a consensus grade level. This reference details the linguistic features, mathematical inputs, and operational boundaries of each formula.
 
-## The shared inputs
+## Linguistic Inputs
 
-Almost every formula is a weighted combination of a small set of surface features:
+Formulas compute weighted linear combinations of core structural and lexical features:
 
-- **Sentence length** — words per sentence. Longer sentences raise grade level across nearly all formulas.
-- **Word length** — measured either in **syllables** (Flesch family, SMOG, Gunning Fog) or in **characters/letters** (Coleman-Liau, ARI). Character-based formulas avoid syllable-counting errors.
-- **Word familiarity** — whether words appear on a curated list of common words (Dale-Chall, Spache).
+- **Sentence length**: Words per sentence ($W/S$). Longer sentences raise grade levels across nearly all formulas.
+- **Word complexity (syllables)**: Syllables per word ($S/W$) or percentage of polysyllabic words (3+ syllables). Used in Flesch, Flesch-Kincaid, Gunning Fog, and SMOG.
+- **Word complexity (characters)**: Characters or letters per 100 words ($L/100W$). Used in Coleman-Liau and ARI to eliminate syllable-counter inaccuracies.
+- **Lexical familiarity**: Proportion of words outside a curated vocabulary list. Used in Dale-Chall (3,000 common words) and Spache (primary school vocabulary).
 
-Understanding which lever a formula pulls tells you how to move its score. If Coleman-Liau is high, shorten words. If Gunning Fog is high, cut multi-syllable jargon. If Dale-Chall is high, replace unfamiliar vocabulary.
+Understanding which feature a formula isolates helps guide text simplification:
+- High Coleman-Liau: Shorten word lengths.
+- High Gunning Fog: Replace multi-syllable jargon.
+- High Dale-Chall: Swap specialized terms for familiar vocabulary.
 
-## The ten formulas
+## Formula Reference
 
-| Metric | Output range | What it measures |
+| Metric | Output Range | Linguistic Mechanics |
 |---|---|---|
-| **Flesch Reading Ease** | 0–100 (higher = easier) | Syllables per word and words per sentence. 90–100 ≈ grade 5; 60–70 plain English; < 30 academic/legal. |
-| **Flesch-Kincaid Grade** | U.S. grade level | The Flesch inputs re-expressed as years of U.S. formal education. |
-| **Gunning Fog Index** | U.S. grade level | Sentence length plus the proportion of "complex" words (3+ syllables). Penalizes jargon. |
-| **SMOG Index** | U.S. grade level | Polysyllable count over a fixed sentence sample. The standard in health and medical writing. |
-| **Coleman-Liau Index** | U.S. grade level | Letters per 100 words and sentences per 100 words. Character-based, so no syllable counting. |
-| **Automated Readability Index (ARI)** | U.S. grade level | Characters per word and words per sentence. Also character-based. |
-| **Linsear Write** | U.S. grade level | Developed for U.S. Air Force technical manuals; weights easy versus hard words by syllable count. |
-| **Dale-Chall Score** | 0.0–10.0+ | Fraction of words *outside* a list of ~3,000 familiar words, plus sentence length. |
-| **Spache Score** | Primary grade level | Familiar-word approach calibrated specifically for texts below 4th grade. |
-| **Text Standard** | Consensus grade | The cross-formula consensus; the single most robust number docstats reports. |
+| **Flesch Reading Ease** | 0–100 (Higher = Simpler) | Combines words per sentence and syllables per word. Scores of 60–70 denote plain English; scores below 30 indicate legal/academic prose. |
+| **Flesch-Kincaid Grade** | U.S. Grade Level | Re-expresses Flesch inputs as formal years of U.S. schooling. |
+| **Gunning Fog Index** | U.S. Grade Level | Weights average sentence length against the percentage of complex words (≥3 syllables), heavily penalizing technical jargon. |
+| **SMOG Index** | U.S. Grade Level | Counts polysyllabic words across a fixed 30-sentence sample. Standard in clinical, health, and consumer disclosures. |
+| **Coleman-Liau Index** | U.S. Grade Level | Computes letters per 100 words and sentences per 100 words, relying entirely on character counts. |
+| **Automated Readability (ARI)** | U.S. Grade Level | Computes characters per word and words per sentence. |
+| **Linsear Write** | U.S. Grade Level | Developed for technical manuals; classifies words into easy (1–2 syllables) and hard (3+ syllables) categories over 100-word blocks. |
+| **Dale-Chall Score** | 0.0–10.0+ | Measures the percentage of words outside a 3,000-word common vocabulary list alongside sentence length. |
+| **Spache Score** | Primary Grade Level | Evaluates unfamiliar vocabulary and sentence length calibrated specifically for primary school texts (grades 1–4). |
+| **Text Standard** | Consensus Grade | Aggregate consensus grade level across all applicable formulas. |
 
-## Why the consensus is most robust
+## Consensus Grade Robustness
 
-Individual formulas disagree because they weight sentence length versus word difficulty differently. On the golden-set legal sample, Coleman-Liau reads 14.7 while Linsear Write reads 25.0 — the same text, a ten-grade spread. Reporting any single formula in isolation invites cherry-picking.
+Individual formulas diverge based on their structural weights. On the golden-set legal sample, Coleman-Liau reports 14.7 while Linsear Write reports 25.0 on identical text, representing a ten-grade spread. Reporting any single formula in isolation risks selective interpretation.
 
-`text_standard` aggregates across the formulas, which smooths out the idiosyncrasies of any one. Report it first, then explain notable outliers.
+`text_standard` computes the consensus across formulas, dampening the variance of individual metrics. Cite `text_standard` as the primary grade level, noting specific formula outliers when diagnostic context is required.
 
-## Two linguistic caveats
+## Operational Boundaries
 
-### Reading ease runs backwards
+### Inverse Scaling in Reading Ease
 
-`flesch_reading_ease` is the only headline metric where **higher is easier**. Everything else is a grade level where higher is harder. The golden-set primary sample scores ~107 on ease while its grade level is negative; the academic sample scores negative on ease while its grade is 22+. Always state the direction.
+`flesch_reading_ease` scales inversely with grade levels: higher scores indicate simpler reading. The golden-set primary sample scores 106.9 on Reading Ease alongside a negative grade level, whereas the academic sample scores -29.8 with a grade level exceeding 22. Always specify the direction of scale when citing metrics.
 
-### Below ~100 words, trust nothing precisely
+### Sample Size Requirements
 
-Every formula assumes a sample large enough for its ratios to stabilize. Under ~100 words the estimates get noisy, and Spache — which needs a minimum sample — can return `null`. docstats flags this as low confidence rather than pretending the number is precise. See [Troubleshooting](/docstats/guides/troubleshooting/).
+Readability formulas require sufficient sample volume for stable lexical ratios. For passages under 100 words, docstats marks metrics as low confidence, and the Spache formula may return `null`. See [Troubleshooting](/docstats/guides/troubleshooting/).
 
-## Reading the raw statistics
+## Structural Diagnostics
 
-`word_count`, `sentence_count`, and `syllable_count` explain *why* a score landed where it did:
+Raw structural statistics (`word_count`, `sentence_count`, `syllable_count`) identify the causes of high grade levels:
 
-- **Long sentences inflate grade level.** The golden-set legal sample averages ~36 words per sentence (109 words across 3 sentences); splitting sentences is usually the fastest way to lower the grade.
-- **Syllable density drives the Flesch family and SMOG.** The academic sample packs 358 syllables into 140 words (~2.56 syllables/word); swapping multi-syllable jargon for plain words lowers these fast.
+- **Sentence length**: The golden-set legal sample averages 36 words per sentence (109 words across 3 sentences). Splitting compound sentences provides the fastest reduction in grade level.
+- **Syllable density**: The academic sample contains 358 syllables in 140 words (2.56 syllables/word). Replacing multi-syllable terms directly lowers Flesch-Kincaid and SMOG scores.
 
-For how these numbers map to audience decisions, see [Interpreting Scores](/docstats/guides/interpreting-scores/).
+For mapping scores to audience targets, see [Interpreting Scores](/docstats/guides/interpreting-scores/).

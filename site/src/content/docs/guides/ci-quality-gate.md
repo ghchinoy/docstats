@@ -1,35 +1,35 @@
 ---
 title: CI Quality Gate
-description: Use docstats as a post-hoc acceptance gate in CI/CD and PR reviews, with the combined verdict matrix and golden-set zero-drift guarantees.
+description: Integrate docstats into CI/CD pipelines and pull request reviews using two-axis acceptance gating.
 sidebar:
   order: 3
 ---
 
-docstats is built to gate documentation, not to steer generation. This page shows how to wire it into a pipeline and how to read the pass/warn/fail verdict.
+docstats operates as an automated acceptance gate in continuous integration pipelines and pull request checks.
 
-## The recommended workflow
+## Recommended CI/CD Workflow
 
-1. Draft or edit with qualitative editorial guidelines.
-2. Run docstats as an acceptance gate (in CI, a pre-commit hook, or a PR check).
-3. If either axis fails, apply targeted edits to resolve the diagnostic flags.
-4. Re-run to confirm the fix.
+1. Authors draft and edit documentation against qualitative style guides.
+2. The CI pipeline invokes docstats as an automated gate.
+3. If either axis fails, authors resolve the specific diagnostic flags.
+4. The pipeline re-evaluates the amended commit.
 
-This is deliberately **post-hoc**. Injecting live metrics during generation does not improve quality (p = 0.7253) and invites metric gaming — see [Statistics & Evaluation](/docstats/deep-dives/statistics-and-evaluation/).
+This workflow enforces post-hoc validation. In controlled studies, supplying live numeric scores during drafting produced no measurable quality gains ($p = 0.7253$) and encouraged gaming of superficial metrics. See [Statistics & Evaluation](/docstats/deep-dives/statistics-and-evaluation/).
 
-## The combined verdict matrix
+## Combined Acceptance Verdicts
 
-A draft ships only when both axes pass. The action depends on which axis failed and on the document's provenance:
+Publication requires passing both Axis A and Axis B. Actionable remediation depends on which axis failed and document provenance:
 
-| Axis A (audience fit) | Axis B (style score) | Verdict | Provenance-aware action |
+| Axis A (Audience Fit) | Axis B (Style Score) | Verdict | Provenance-Aware Action |
 |---|---|---|---|
-| **Pass** | **Pass** | **Ship** | Ready to publish. |
-| **Pass** | **Warn / Fail** | **Revise for Voice** | Raw AI draft: aggressively restructure to remove synthetic tropes. Human text: apply light-touch linting on specific flags; preserve authorial voice. |
-| **Warn / Fail** | **Pass** | **Revise for Complexity** | Adjust sentence length and vocabulary for the target audience without altering voice. |
-| **Fail** | **Fail** | **Full Rewrite** | Raw AI draft: overhaul complexity and style. Human text: refactor dense sections for clarity; address style lints. |
+| **Pass** | **Pass** | **Ship** | Publication ready. |
+| **Pass** | **Warn / Fail** | **Revise for Voice** | Raw AI drafts: Restructure sentences to eliminate synthetic tropes. Human-authored text: Address specific diagnostic flags while preserving authorial voice. |
+| **Warn / Fail** | **Pass** | **Revise for Complexity** | Adjust sentence length and vocabulary for the target audience band. |
+| **Fail** | **Fail** | **Full Rewrite** | Raw AI drafts: Re-author complexity and voice. Human-authored text: Decompose dense sections and address style lints. |
 
-No blended headline number is emitted. See [The Two-Axis Model](/docstats/deep-dives/two-axis-model/) for the axis-level pass/warn/fail definitions.
+Both axes must pass independently. See [The Two-Axis Model](/docstats/deep-dives/two-axis-model/) for threshold criteria.
 
-## Example scorecard output
+## Sample CI Scorecard Output
 
 ```
 DOCUMENT: migration-guide.md   (declared type: developer blog)
@@ -48,29 +48,29 @@ VERDICT: REVISE
   cut 2 throat-clearing openers, rewrite 4 binary-contrast frames.
 ```
 
-## Golden-set benchmarking (zero drift)
+## Golden Set Drift Anchors
 
-The `samples/` directory holds four reference texts spanning difficulty levels (`level_primary`, `level_middle`, `level_academic`, `level_legal`). They serve as **internal drift anchors**: any change to parsing, tokenization, or a formula implementation must produce exactly zero drift against the committed baseline.
+The `samples/` directory holds four reference texts spanning complexity tiers (`level_primary`, `level_middle`, `level_academic`, `level_legal`). These serve as deterministic code-drift anchors: modifications to parsing, tokenization, or formula implementations must produce zero score variance against the committed baseline.
 
-Run the baseline analyzer after changing extraction or metric code:
+Verify baseline consistency locally or in CI:
 
 ```bash
 uv run python baseline_analysis.py
 ```
 
-Compare the output against `samples/baseline_results.json`.
+Compare generated scores against `samples/baseline_results.json`.
 
-## Quality gates in CI
+## CI Pipeline Commands
 
 ```bash
-# Full test suite
+# Execute test suite
 uv run pytest
 
-# Linter and formatter
+# Verify code style and formatting
 uv run ruff check .
 uv run ruff format --check .
 ```
 
-## Anti-circularity warning
+## Anti-Circularity in External Evaluation
 
-When you evaluate the quality of text an AI agent generated or edited, **do not use docstats' own scores as the sole judge** — that is circular. Rigorous evaluation uses independent, decoupled frameworks: blind human or LLM comparative judging, held-out readability grading, and non-parametric tests such as the Wilcoxon signed-rank test. docstats telemetry can be recorded for every candidate, but it must never dictate the win/loss verdict.
+When evaluating text generated by AI models, avoid using docstats scores as the sole measure of writing quality. Rigorous evaluation requires decoupled benchmarks: blind multi-judge human or LLM scoring, held-out readability implementations, and non-parametric statistical tests (such as the Wilcoxon signed-rank test). docstats telemetry records diagnostic metrics without dictating external evaluative verdicts.

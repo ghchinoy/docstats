@@ -1,32 +1,32 @@
 ---
 title: Troubleshooting
-description: Common docstats edge cases — short-text noise, null Spache scores, and Google Cloud ADC authentication errors — and how to resolve them.
+description: Common edge cases in docstats, including sample size limits, null Spache scores, authentication errors, and score divergence.
 sidebar:
   order: 4
 ---
 
-## Short text warning (under 100 words)
+## Short Text Warning (Under 100 Words)
 
-Readability algorithms become statistically noisy on short fragments. When analyzing inputs under 100 words, docstats logs a warning and marks Axis B `confidence` as `low`. Treat the scores as indicative, not authoritative. For meaningful results, analyze at least ~100 words.
+Readability formulas lose statistical stability on short inputs. For passages under 100 words, docstats logs a warning and marks Axis B `confidence` as `low`. For definitive scoring, provide passages of at least 100 words.
 
-## `spache` returns `null`
+## Null Spache Score
 
-The Spache formula requires a minimum sample length and is calibrated only for primary-grade writing. A `null` value is normal for adult or technical texts and for short samples. Nothing is broken.
+The Spache formula requires a minimum sample length and is calibrated exclusively for primary-grade reading levels. Returns of `null` are expected for technical texts and brief passages.
 
-## Google Cloud ADC error
+## Google Cloud ADC Authentication Errors
 
-If you receive authentication errors when processing a `gs://` URI, refresh your Application Default Credentials:
+When processing `gs://` URIs, authenticate local credentials via:
 
 ```bash
 gcloud auth application-default login
 ```
 
-Ensure the authenticated account or service account has `roles/storage.objectViewer` on the target bucket. Alternatively, set `GOOGLE_APPLICATION_CREDENTIALS` to a valid service account key path.
+Verify that the active identity holds `roles/storage.objectViewer` on the bucket. Alternatively, point `GOOGLE_APPLICATION_CREDENTIALS` to an authorized service account key file.
 
-## Individual formulas disagree
+## Divergence Across Formulas
 
-This is expected, not a bug. Each formula weights sentence length versus word difficulty differently, so they legitimately diverge on the same text. Report the consensus `text_standard` first, then explain notable outliers. See [Interpreting Scores](/docstats/guides/interpreting-scores/) for a worked example.
+Formulas diverge because each assigns distinct weights to sentence length versus syllable or character counts. For example, character-based formulas diverge from syllable-based formulas on technical jargon. Report `text_standard` as the primary metric, and explain formula-specific outliers when relevant. See [Interpreting Scores](/docstats/guides/interpreting-scores/).
 
-## Reading ease looks "backwards"
+## Reading Ease Directionality
 
-`flesch_reading_ease` runs opposite to the grade scores: higher means *easier*. A primary text can score ~107 on ease while its grade level is negative. Always state which direction you mean.
+`flesch_reading_ease` scales inversely with grade levels: higher scores indicate simpler prose, whereas higher grade levels indicate greater complexity. Early primary text can score over 100 on Reading Ease alongside negative grade levels.

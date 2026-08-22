@@ -1,15 +1,15 @@
 ---
 title: Interpreting Scores
-description: How to read the two-axis docstats scorecard, map scores to audience-target bands, and turn numbers into concrete edits.
+description: How to evaluate the two-axis scorecard, map metrics to audience bands, and remediate flagged issues.
 sidebar:
   order: 3
 ---
 
-docstats hands you numbers. This page turns them into decisions and edits.
+Translate docstats metrics into concrete editorial actions across both axes.
 
-## The scorecard at a glance
+## Two-Axis Scorecard Structure
 
-A full `analyze_document` result carries both axes:
+A complete `analyze_document` response contains both Axis A (readability) and Axis B (house style):
 
 ```json
 {
@@ -34,59 +34,63 @@ A full `analyze_document` result carries both axes:
 }
 ```
 
-## Axis A: audience-target bands
+## Axis A: Audience Target Bands
 
-Report `text_standard` (the consensus grade) first, then `flesch_reading_ease`. Map the consensus grade to an audience band:
+Evaluate `text_standard` (the cross-formula consensus grade) against the target audience band:
 
-| Target band | Consensus grade (`text_standard`) | Reading ease | Recommended document types |
+| Target Band | Consensus Grade (`text_standard`) | Reading Ease | Typical Document Types |
 |---|---|---|---|
-| **Very accessible** | ≤ 6 | > 70 | Beginner tutorials, onboarding guides |
+| **Very Accessible** | ≤ 6 | > 70 | Beginner tutorials, onboarding guides |
 | **Accessible** | 7–10 | 50–70 | General developer blog posts, READMEs |
-| **Dense** | 10–15 | 30–50 | Deep technical guides, architecture write-ups |
-| **Very dense** | 15–20 | 10–30 | Formal specifications, RFCs, kernel docs |
-| **Impenetrable** | > 20 | < 10 | Academic papers, dense legal agreements |
+| **Dense** | 10–15 | 30–50 | Technical guides, architecture write-ups |
+| **Very Dense** | 15–20 | 10–30 | Specifications, RFCs, kernel documentation |
+| **Impenetrable** | > 20 | < 10 | Academic research, formal legal texts |
 
-A general developer post should land in **Accessible to Dense**. Landing in "Impenetrable" is a failure unless the document type explicitly allows it (spec, legal, academic).
+General developer documentation typically targets **Accessible to Dense** (grades 7–15). Reaching "Impenetrable" indicates required simplification unless the document is a formal specification.
 
 :::caution
-`flesch_reading_ease` runs *opposite* to the grade scores: higher means easier. Always state which direction you mean when reporting a number.
+`flesch_reading_ease` scales inversely with grade levels: higher scores indicate simpler reading. Specify the metric direction when citing scores in reviews.
 :::
 
-## Axis B: house-style thresholds
+## Axis B: House-Style Thresholds
 
-| Metric | Passing threshold | Actionable guidance |
+| Metric | Passing Threshold | Guidance |
 |---|---|---|
-| `ai_tell_score` | **≥ 7.0 / 10.0** | The floor. Below 7.0 signals a high density of forbidden tropes. |
-| `em_dash_count` | ≤ 0.5 per 100 words | Sparse grammatical breaks are fine; cut rhetorical drama dashes. |
-| `throat_clearing_count` | 0 | Delete openers like "Here's the thing:", "It's worth noting that". |
-| `binary_contrast_count` | 0 | Rewrite "Not X, it's Y" and "X isn't the problem, Y is" framing. |
+| `ai_tell_score` | **≥ 7.0 / 10.0** | Passing floor. Scores below 7.0 require structural editing. |
+| `em_dash_count` | ≤ 0.5 per 100 words | Use commas, colons, or parentheses instead of rhetorical em dashes. |
+| `throat_clearing_count` | 0 | Remove opening announcements ("Here's the thing:", "It's worth noting"). |
+| `binary_contrast_count` | 0 | State the substantive point directly; eliminate "not X, it's Y" framing. |
 | `adverb_ly_rate` | ≤ 1.5 per 100 words | Remove non-technical filler adverbs ("fundamentally", "genuinely"). |
-| `sentence_len_cv` | *advisory only* (~0.20–0.40) | A rhythm hint, not a gate. **Do not** enforce a numeric CV target — research shows it degrades natural rhythm. |
-| `flags` | empty list | Address the specific diagnostic suggestions returned by the tool. |
+| `sentence_len_cv` | Advisory (~0.20–0.40) | Rhythm indicator. Avoid enforcing hard numeric CV targets, which degrade natural rhythm variation. |
+| `flags` | Empty list | Resolve all diagnostic warnings returned by the tool. |
 
-## Turning scores into edits
+## Editorial Remediation Steps
 
-1. Report `text_standard` and `flesch_reading_ease`, then state the audience fit.
-2. If the text is above target, look at average sentence length (`word_count / sentence_count`) and syllable density to pick the lever:
-   - Long sentences → split them.
-   - High syllables per word → replace jargon with common words.
-   - High `dale_chall_readability_score` → too many unfamiliar words; simplify vocabulary.
-3. Re-run and confirm the consensus grade moved toward the target.
+1. Check `text_standard` against the target audience band.
+2. If grade level exceeds the target, inspect average sentence length (`word_count / sentence_count`) and syllable density:
+   - High average sentence length: Split compound sentences.
+   - High syllables per word: Replace multi-syllable jargon with direct terms.
+   - Elevated `dale_chall_readability_score`: Simplify vocabulary outside common word lists.
+3. If Axis B flags style issues:
+   - Remove throat-clearing preambles and state assertions directly.
+   - Replace prose em dashes with commas, periods, or colons.
+   - Convert binary contrast statements into direct assertions.
+4. Re-run `analyze_document` to confirm both axes meet passing thresholds.
 
-## Worked reference points
+## Golden Set Calibration Samples
 
-These values come from docstats' committed golden set, so you can calibrate what a number "feels" like:
+Reference metrics from docstats' committed baseline (`samples/baseline_results.json`):
 
-| Sample | Intended audience | `text_standard` | `flesch_reading_ease` |
+| Sample | Target Audience | `text_standard` | `flesch_reading_ease` |
 |---|---|---|---|
-| `level_primary.txt` | Early primary readers | -1.0 (below grade 1) | 106.9 (extremely easy) |
-| `level_middle.txt` | Middle / high school | 15.0 | 35.3 (difficult) |
-| `level_academic.txt` | University / research | 23.0 | -29.8 (very difficult) |
-| `level_legal.txt` | Legal / specialist | 25.0 | 14.0 (very difficult) |
+| `level_primary.txt` | Early primary | -1.0 | 106.9 |
+| `level_middle.txt` | Middle / secondary | 15.0 | 35.3 |
+| `level_academic.txt` | University / research | 23.0 | -29.8 |
+| `level_legal.txt` | Legal / specialist | 25.0 | 14.0 |
 
-Two takeaways:
+Key calibration findings:
 
-- **The consensus `text_standard` is the most robust single number.** Individual formulas disagree — for the legal sample, Coleman-Liau (14.7) is far below Linsear Write (25.0) — because each weights sentence length versus word difficulty differently.
-- **Legal is not hardest on every axis.** The academic sample has the lowest (hardest) reading ease, but the legal sample has the highest consensus grade, driven by very long sentences (~36 words per sentence).
+- **Consensus reliability**: Individual formulas diverge on complex prose. In the legal sample, Coleman-Liau reports 14.7 while Linsear Write reports 25.0 due to differing weights on word length versus sentence length. `text_standard` provides the most stable evaluation.
+- **Structural drivers**: The academic sample has the lowest reading ease (-29.8) due to heavy syllable density (2.56 syllables/word), while the legal sample yields the highest consensus grade (25.0) driven by 36-word average sentence lengths.
 
-For the mechanics behind each formula, see [Readability Formulas](/docstats/deep-dives/readability-formulas/).
+For formula mechanics, see [Readability Formulas](/docstats/deep-dives/readability-formulas/).

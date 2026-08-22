@@ -1,18 +1,18 @@
 ---
 title: Getting Started
-description: Install docstats with uv and run your first readability and house-style analysis, over MCP or the REST API.
+description: Install docstats with uv and run your first readability analysis over MCP or the REST API.
 sidebar:
   order: 2
 ---
 
-Run docstats in under a minute. You will install it, start a server, and score a sample string.
+Get started with docstats in under a minute by installing the package, starting a server, and scoring sample text.
 
 ## Prerequisites
 
 - Python 3.10 or newer
-- The [`uv`](https://docs.astral.sh/uv/) package manager
+- [`uv`](https://docs.astral.sh/uv/) package manager
 
-## Install
+## Installation
 
 ```bash
 git clone https://github.com/ghchinoy/docstats.git
@@ -20,29 +20,29 @@ cd docstats
 uv sync
 ```
 
-If you plan to read PDFs from Google Cloud Storage (`gs://`), log in with Application Default Credentials:
+To read PDFs from Google Cloud Storage (`gs://`), authenticate with Application Default Credentials:
 
 ```bash
 gcloud auth application-default login
 ```
 
-## Run it
+## Server Startup
 
-docstats runs in three modes. Pick one:
+docstats supports three execution modes:
 
 ```bash
 # Start the MCP server over STDIO (for Claude Code, Gemini CLI, Cursor, etc.)
 uv run python main.py --server-type mcp
 
-# Or start the local REST API server
+# Start the local REST API server
 uv run uvicorn fastapi_app:fastapi_app --reload
 ```
 
-See [Server Modes](/docstats/guides/server-modes/) for the full comparison, including the streamable HTTP transport.
+See [Server Modes](/docstats/guides/server-modes/) for detailed runtime options, including streamable HTTP transport.
 
-## Your first request
+## First Request
 
-With the REST server running, score a string:
+With the REST server running, send a scoring request:
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/scores/" \
@@ -63,33 +63,33 @@ Example response:
 ```
 
 :::note
-Readability formulas become statistically noisy on short fragments. For meaningful scores, analyze at least ~100 words. See [Troubleshooting](/docstats/guides/troubleshooting/).
+Readability formulas exhibit variance on short passages. For stable metrics, analyze samples of at least 100 words. See [Troubleshooting](/docstats/guides/troubleshooting/).
 :::
 
-## What each field means
+## Score Fields
 
-- `flesch_reading_ease` — 0–100, higher is easier to read.
-- `flesch_kincaid_grade` — U.S. grade level (years of education).
-- `text_standard` — the consensus grade across all formulas; the most robust single number.
-- `word_count` / `sentence_count` — raw statistics that explain *why* a score landed where it did.
+- `flesch_reading_ease`: Scale of 0–100, where higher scores indicate easier reading.
+- `flesch_kincaid_grade`: U.S. grade level estimate (years of formal education).
+- `text_standard`: Cross-formula consensus grade level.
+- `word_count` / `sentence_count`: Structural metrics underlying formula calculations.
 
-For the full interpretation guide, read [Interpreting Scores](/docstats/guides/interpreting-scores/).
+For complete field explanations and target bands, see [Interpreting Scores](/docstats/guides/interpreting-scores/).
 
-## Run the tests (optional)
+## Test Suite
 
 ```bash
-# Full suite
+# Full test suite
 uv run pytest
 
-# Fast unit tests only (no network)
+# Fast unit tests (no network access required)
 uv run pytest test_unit.py
 
-# Skip slow integration tests
+# Exclude slow integration tests
 uv run pytest -m "not slow"
 ```
 
-## Next steps
+## Next Steps
 
-- [Inputs & Extraction](/docstats/guides/inputs-and-extraction/) — analyze web pages and PDFs, not just strings.
-- [MCP & Agent Plugins](/docstats/integrations/mcp/) — connect docstats to your AI assistant.
-- [CI Quality Gate](/docstats/guides/ci-quality-gate/) — enforce thresholds in your pipeline.
+- [Inputs & Extraction](/docstats/guides/inputs-and-extraction/): Process web pages, PDF documents, and raw text.
+- [MCP & Agent Plugins](/docstats/integrations/mcp/): Connect docstats to AI assistant environments.
+- [CI Quality Gate](/docstats/guides/ci-quality-gate/): Add docstats checks to automated pull request workflows.

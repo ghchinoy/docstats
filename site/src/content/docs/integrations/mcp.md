@@ -1,23 +1,23 @@
 ---
 title: MCP & Agent Plugins
-description: Wire docstats into AI agent runtimes as a Model Context Protocol server. Covers the Agent Plugins v1.0.0 manifest, the three MCP tools, and manual client configuration.
+description: Connect docstats to AI agent runtimes through the Model Context Protocol and the Agent Plugins v1.0.0 standard.
 sidebar:
   order: 1
 ---
 
-docstats ships as a Model Context Protocol (MCP) server so AI coding assistants can audit prose they generate or edit. It conforms to the [Agent Plugins v1.0.0 specification](https://github.com/agentplugins/agent-plugins-spec), so compliant runtimes discover it automatically.
+docstats provides a Model Context Protocol (MCP) server enabling AI coding assistants to evaluate prose quality. It conforms to the [Agent Plugins v1.0.0 specification](https://github.com/agentplugins/agent-plugins-spec), allowing compatible runtimes to discover the server and skill definitions automatically.
 
-## Plugin manifest files
+## Plugin Manifest Files
 
-Agent runtimes read these root-level files to find the plugin, its MCP server, and its skill:
+Agent runtimes locate the plugin, MCP server, and skill through root manifest files:
 
 | File | Purpose |
 |---|---|
 | `plugin.json` | Plugin metadata and version information. |
-| `mcp.json` | MCP STDIO server declaration. |
-| `skills/readability-analysis/SKILL.md` | Skill guidance for AI assistants. |
+| `mcp.json` | MCP STDIO server launch configuration. |
+| `skills/readability-analysis/SKILL.md` | Model-facing analysis guidance. |
 
-The `mcp.json` uses `${PLUGIN_ROOT}` so the path resolves wherever the plugin is installed:
+The `mcp.json` file uses `${PLUGIN_ROOT}` to resolve paths portably:
 
 ```json
 {
@@ -32,16 +32,16 @@ The `mcp.json` uses `${PLUGIN_ROOT}` so the path resolves wherever the plugin is
 }
 ```
 
-## The three MCP tools
+## MCP Tool Reference
 
-The server `readability-docstats` exposes three tools. Each accepts the same input: **exactly one** of `text`, `web_url`, or `gcs_pdf_uri`.
+The `readability-docstats` server registers three tools. Each tool accepts **exactly one** of `text`, `web_url`, or `gcs_pdf_uri`.
 
-### `analyze_document` (preferred)
+### `analyze_document`
 
-Comprehensive two-axis assessment:
+Performs combined two-axis document evaluation:
 
-- **Axis A** — 10 grade-level and reading-ease formulas plus a consensus standard.
-- **Axis B** — deterministic house-style lint counts and rates, plus the rolled-up `ai_tell_score` (0.0–10.0, floor ≥ 7.0).
+- **Axis A**: Ten grade-level and reading-ease formulas with consensus grade level.
+- **Axis B**: Deterministic house-style lint counts, rates, diagnostic flags, and the rolled-up `ai_tell_score` (0.0–10.0 scale, passing floor ≥ 7.0).
 
 ```json
 {
@@ -54,15 +54,15 @@ Comprehensive two-axis assessment:
 
 ### `get_readability_scores`
 
-Axis A only — readability scores and raw text statistics (syllables, words, sentences).
+Calculates Axis A readability metrics and raw structural counts (syllables, words, sentences).
 
 ### `get_ai_pattern_scores`
 
-Axis B only — house-style lint counts, rates, diagnostic flags, and `ai_tell_score`.
+Calculates Axis B pattern counts, occurrence rates, diagnostic flags, and `ai_tell_score`.
 
-## Manual client configuration
+## Manual Client Configuration
 
-For clients that do not auto-discover plugin manifests, register the server yourself.
+For agent environments without automatic plugin discovery, configure the server manually.
 
 **Claude Code (`~/.claude/settings.json`) or Gemini CLI (`~/.gemini/settings.json`):**
 
@@ -78,19 +78,19 @@ For clients that do not auto-discover plugin manifests, register the server your
 }
 ```
 
-Replace `/ABSOLUTE/PATH/TO/docstats` with your local clone path.
+Replace `/ABSOLUTE/PATH/TO/docstats` with the path to your repository clone.
 
-## Remote deployments
+## Remote HTTP Deployment
 
-If a subprocess is not practical, run the MCP server over HTTP instead:
+To run the MCP server over HTTP rather than standard I/O:
 
 ```bash
 uv run python main.py --server-type mcp-http --host 127.0.0.1 --port 8001
 ```
 
-See [Server Modes](/docstats/guides/server-modes/) for the SSE versus plain-JSON options.
+See [Server Modes](/docstats/guides/server-modes/) for configuration options.
 
-## Next steps
+## Next Steps
 
-- [Skills](/docstats/integrations/skills/) — the `readability-analysis` skill that guides the model in reading the scorecard.
-- [Interpreting Scores](/docstats/guides/interpreting-scores/) — how to act on the tool output.
+- [Skills](/docstats/integrations/skills/): Model-facing instructions for interpreting scorecard results.
+- [Interpreting Scores](/docstats/guides/interpreting-scores/): Detailed score interpretations and target audience bands.

@@ -1,31 +1,31 @@
 ---
 title: REST API
-description: The docstats FastAPI endpoints — /scores/, /patterns/, and /analyze/ — with request and response shapes and curl examples.
+description: FastAPI REST endpoints (/scores/, /patterns/, and /analyze/) with request payloads, curl examples, and response schemas.
 sidebar:
   order: 3
 ---
 
-The FastAPI server exposes the same analysis engine as the MCP tools over plain HTTP + JSON. Interactive Swagger docs are available at `/docs` when the server is running.
+The FastAPI server exposes the analysis engine over HTTP and JSON. Interactive OpenAPI documentation is accessible at `/docs` when the server is active.
 
-## Start the server
+## Starting the Server
 
 ```bash
 uv run uvicorn fastapi_app:fastapi_app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Then open `http://127.0.0.1:8000/docs` for the Swagger UI.
+Open `http://127.0.0.1:8000/docs` to access the interactive Swagger interface.
 
 ## Endpoints
 
 | Endpoint | Method | Axis | Returns |
 |---|---|---|---|
-| `/scores/` | POST | A | Readability scores + raw statistics |
-| `/patterns/` | POST | B | House-style lint counts, rates, flags, `ai_tell_score` |
-| `/analyze/` | POST | A + B | Combined two-axis assessment |
+| `/scores/` | POST | A | Readability metrics and structural counts. |
+| `/patterns/` | POST | B | House-style pattern counts, rates, flags, and `ai_tell_score`. |
+| `/analyze/` | POST | A + B | Combined two-axis scorecard. |
 
-## Request body
+## Request Payloads
 
-Every endpoint accepts the same body: **exactly one** input source.
+Every endpoint accepts **exactly one** input source parameter:
 
 ```json
 { "text": "The quick brown fox jumps over the lazy dog." }
@@ -39,9 +39,9 @@ Every endpoint accepts the same body: **exactly one** input source.
 { "gcs_pdf_uri": "gs://bucket-name/path/to/document.pdf" }
 ```
 
-See [Inputs & Extraction](/docstats/guides/inputs-and-extraction/) for how each source is processed.
+See [Inputs & Extraction](/docstats/guides/inputs-and-extraction/) for input handling specifications.
 
-## Examples
+## Request Examples
 
 **Score direct text (Axis A):**
 
@@ -51,7 +51,7 @@ curl -X POST "http://127.0.0.1:8000/scores/" \
   -d '{"text": "The quick brown fox jumps over the lazy dog."}'
 ```
 
-**Analyze a web page (both axes):**
+**Analyze a web page (Axes A + B):**
 
 ```bash
 curl -X POST "http://127.0.0.1:8000/analyze/" \
@@ -59,7 +59,7 @@ curl -X POST "http://127.0.0.1:8000/analyze/" \
   -d '{"web_url": "https://en.wikipedia.org/wiki/Readability"}'
 ```
 
-## Combined response shape
+## Combined Response Schema
 
 ```json
 {
@@ -84,4 +84,4 @@ curl -X POST "http://127.0.0.1:8000/analyze/" \
 }
 ```
 
-For field-by-field meaning, see [Interpreting Scores](/docstats/guides/interpreting-scores/) and the [deep dives](/docstats/deep-dives/readability-formulas/).
+For field definitions, see [Interpreting Scores](/docstats/guides/interpreting-scores/) and [Readability Formulas](/docstats/deep-dives/readability-formulas/).

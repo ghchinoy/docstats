@@ -1,64 +1,62 @@
 ---
 title: Research Program
-description: The multi-experiment research program behind docstats — the E1–E5 portfolio, the engine/shared/experiments layout, and the dependency graph between studies.
+description: Overview of the E1–E5 experiment portfolio, shared engine architecture, and empirical study designs.
 sidebar:
   order: 5
 ---
 
-docstats is the instrument for a research program studying whether deterministic statistical metrics help AI rewriters produce better technical prose. This page maps the portfolio of experiments and how the repository is organized to support them.
+docstats provides the measurement infrastructure for experimental studies evaluating whether deterministic statistical metrics improve AI-assisted technical writing.
 
-## Organizing principle
+## Program Architecture
 
-The program separates three concerns so many experiments can share one well-tested foundation:
+The research program decouples execution engine code, shared assets, and individual study configurations:
 
-| Layer | Location | Reused? | Description |
+| Layer | Location | Shared? | Purpose |
 |---|---|---|---|
-| **Engine** | `engine/` | Yes (code) | Provider-agnostic execution, blind judging, statistics, and reporting. Experiments call into it; they do not fork it. |
-| **Shared assets** | `shared/` | Yes (data) | The evaluation corpus, canonical arm prompt templates, and the vendored skill registry. |
-| **Experiments** | `experiments/<id>/` | No (owned) | Each research question is one self-contained directory: a `config.yaml`, a `README.md`, its own `results/`, and a `report.md`. |
-| **Reports** | `reports/` | No (owned) | The flagship preprint (E1) plus short technical reports for secondary experiments. |
+| **Engine** | `engine/` | Yes (code) | Provider-agnostic execution, blind judging, non-parametric statistics, and automated reporting. |
+| **Shared Assets** | `shared/` | Yes (data) | Evaluation corpus documents, canonical arm prompt templates, and skill registries. |
+| **Experiments** | `experiments/<id>/` | No (owned) | Study definitions containing `config.yaml`, `README.md`, timestamped `results/`, and `report.md`. |
+| **Reports** | `reports/` | No (owned) | Preprints and technical reports compiling findings across study runs. |
 
-**Rule of thumb:** if two experiments need the same code or corpus, it belongs in `engine/` or `shared/`. If it is a decision about a specific study, it belongs in that experiment's `config.yaml`.
-
-## Directory layout
+## Repository Layout
 
 ```
-├── engine/                     # Shared reusable evaluation library
-│   ├── run_experiment.py       #   Arm execution (standard + multi-skill)
-│   ├── judge.py                #   Blind holistic + per-rule judging
-│   ├── analyze_results.py      #   Wilcoxon signed-rank + per-rule aggregation
-│   ├── writeup.py              #   Markdown report generator
-│   ├── llm_client.py           #   Gemini / Vertex / Claude client
-│   └── mcp_client.py           #   docstats MCP client (analyze_document)
+├── engine/                     # Reusable evaluation and analysis engine
+│   ├── run_experiment.py       #   Multi-arm study execution
+│   ├── judge.py                #   Blind holistic and per-rule judging
+│   ├── analyze_results.py      #   Wilcoxon signed-rank significance testing
+│   ├── writeup.py              #   Automated markdown report generator
+│   ├── llm_client.py           #   Model client (Gemini / Vertex / Claude)
+│   └── mcp_client.py           #   docstats MCP client wrapper
 │
-├── shared/                     # Assets reused across experiments
-│   ├── corpus/                 #   Evaluation documents
-│   ├── arms/                   #   Canonical arm prompt templates
-│   └── skills/registry/        #   Vendored skills + manifest.yaml
+├── shared/                     # Shared study assets
+│   ├── corpus/                 #   Standardized evaluation documents
+│   ├── arms/                   #   Canonical prompt templates
+│   └── skills/registry/        #   Vendored editorial skills
 │
-├── experiments/                # One directory per research question
+├── experiments/                # Individual experiment definitions
 │   ├── e1-primary-stats-impact/
 │   ├── e2-skill-vs-skill/
 │   ├── e3-cross-model/
 │   ├── e4-per-rule-ablation/
 │   └── e5-corpus-provenance/
 │
-└── reports/                    # Preprints & technical reports
+└── reports/                    # Formal technical reports and preprints
 ```
 
-## The experiment portfolio
+## Experiment Portfolio
 
-The program is anchored by one flagship study (E1) and secondary studies that extend, stress-test, or re-slice it.
+The program centers on an initial flagship study (E1) alongside targeted follow-on investigations:
 
-| ID | Title | Research question | Status |
+| ID | Title | Research Question | Status |
 |---|---|---|---|
-| **E1** | Primary: Stats Impact | Does augmenting an AI rewriter with deterministic docstats metrics improve prose over text-only editorial guidance? | Data collected. Both editorial arms beat control (p < 0.01); stats-vs-text-only inconclusive (p = 0.73). Flagship paper. |
-| **E2** | Skill-vs-Skill Benchmark | Among editorial skills of shared lineage, which produces the best technical prose? | Infra ready; awaiting run. |
-| **E3** | Cross-Model Sensitivity | Does the stats-augmentation effect generalize across models and families? | Design; reuses E1 corpus/arms. |
-| **E4** | Per-Rule Ablation | Which individual editorial rules drive the observed wins? | Judge infra ready; awaiting ablation arms. |
-| **E5** | Corpus Provenance Sensitivity | Does the effect differ by document provenance (human vs AI-slop vs mixed)? | Design; re-slices E1 results. |
+| **E1** | Primary: Stats Impact | Does augmenting an AI rewriter with live docstats metrics improve technical prose over text-only editorial guidance? | Completed. Both editorial arms outperformed unguided control ($p < 0.01$). Live metrics vs text-only was inconclusive ($p = 0.73$). |
+| **E2** | Skill-vs-Skill Benchmark | Which editorial skill produces the highest-rated technical prose across shared benchmarks? | Infrastructure complete; execution pending. |
+| **E3** | Cross-Model Sensitivity | Does the effect of editorial guidance generalize across model families (Gemini, Claude)? | Study design complete; reuses E1 corpus and arms. |
+| **E4** | Per-Rule Ablation | What is the marginal contribution of each individual editorial rule to overall quality gains? | Judging infrastructure complete; ablation arm prompts in development. |
+| **E5** | Corpus Provenance Sensitivity | How does rewriting efficacy vary across human-authored, AI-generated, and mixed text? | Analysis design complete; re-slices E1 run data. |
 
-## Dependency graph
+## Study Dependency Graph
 
 ```
                  E1 (primary corpus, arms, canonical run)
@@ -71,8 +69,8 @@ The program is anchored by one flagship study (E1) and secondary studies that ex
               arms)          run by tier)    skill)
 ```
 
-E5 is the cheapest — pure re-analysis of E1's run. E3 and E2 reuse E1's corpus and change one axis each. E4 requires generating leave-one-out arm prompts.
+E5 requires pure re-analysis of E1 data. E3 and E2 reuse the E1 corpus while varying the model and skill dimensions. E4 introduces leave-one-out arm prompt templates.
 
-## Why this matters for docstats users
+## Connection to docstats Architecture
 
-The [gate-not-a-dial](/docstats/guides/what-is-docstats/) design and the [non-circular evaluation standards](/docstats/deep-dives/statistics-and-evaluation/) are not stylistic preferences — they are conclusions from E1 and the detection benchmarks. The research program is what keeps docstats honest about what its numbers can and cannot tell you.
+The post-hoc acceptance gate architecture ([Overview](/docstats/guides/what-is-docstats/)) and non-circular evaluation methodology ([Statistics & Evaluation](/docstats/deep-dives/statistics-and-evaluation/)) derive directly from findings in E1 and benchmark evaluations. The research program provides empirical grounding for the tool's design and operating guidelines.
