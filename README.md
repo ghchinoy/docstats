@@ -173,6 +173,10 @@ Docstats provides the following metrics:
 
 ## Documentation
 
+The full documentation site is published at **[ghchinoy.github.io/docstats](https://ghchinoy.github.io/docstats/)** (built with Astro Starlight; source in [`site/`](./site/)). It covers a user-first explainer, MCP and skills integration, and technical deep dives on the linguistics and statistics.
+
+Source-of-truth references:
+
 - [User Guide](docs/user_guide.md) — Comprehensive guide to configuration, endpoints, extraction pipelines, and troubleshooting.
 - [Scoring Specification](docs/scoring-spec.md) — Specification for two-axis assessment and house-style linting.
 - [Readability Analysis Skill](skills/readability-analysis/SKILL.md) — Model-facing prompt skill and interpretation guide.
